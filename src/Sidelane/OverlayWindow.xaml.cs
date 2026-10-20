@@ -15,6 +15,10 @@ using Brush = System.Windows.Media.Brush;
 using Color = System.Windows.Media.Color;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 using Button = System.Windows.Controls.Button;
+using Brushes = System.Windows.Media.Brushes;
+using ColorConverter = System.Windows.Media.ColorConverter;
+using ContextMenu = System.Windows.Controls.ContextMenu;
+using MenuItem = System.Windows.Controls.MenuItem;
 
 namespace Sidelane;
 
