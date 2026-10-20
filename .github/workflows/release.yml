@@ -1,0 +1,45 @@
+name: Publish v1 release
+
+# Only a deliberately pushed release branch can publish v1.
+# The Windows workflow must first complete successfully for that branch.
+on:
+  workflow_run:
+    workflows: ["Windows build"]
+    types: [completed]
+    branches: ["release/v1.0.0"]
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download exact successful Windows build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --name Sidelane-win-x64 --dir dist
+      - name: Verify SHA256 from Windows build
+        run: |
+          cd dist
+          sha256sum --check Sidelane-win-x64.sha256
+          unzip -l Sidelane-win-x64.zip | grep -E 'Sidelane.exe|LICENSE|README-START.txt'
+      - name: Publish verified Windows assets as v1.0.0
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          if gh release view v1.0.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release already exists; updating assets from verified build."
+            gh release upload v1.0.0 dist/Sidelane-win-x64.zip dist/Sidelane-win-x64.sha256 --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create v1.0.0 dist/Sidelane-win-x64.zip dist/Sidelane-win-x64.sha256 \
+              --target "$HEAD_SHA" --title "Sidelane v1.0.0" \
+              --notes-file docs/RELEASE-NOTES-v1.md --repo "$GITHUB_REPOSITORY"
+          fi
+          gh release view v1.0.0 --repo "$GITHUB_REPOSITORY" --json url,tagName,assets
