@@ -4,7 +4,7 @@ A lightweight, customizable Windows sidebar for people switching between AI tool
 
 ![Interactive design concept of Sidelane](docs/design-preview.jpg)
 
-**Status: v1.0 Windows release preparation.** [Windows CI passed on 20 October 2026](https://github.com/Davittaai/Sidelane/actions/runs/39376540695) with 38 core tests, successful WPF compilation and a portable ZIP. The image above is a browser-rendered design concept, **not a screenshot of the compiled Windows app**. Automated Windows startup checks and hands-on QA have distinct acceptance criteria. See [release status](docs/V1-RELEASE-STATUS.md).
+**Released: [Sidelane v1.0.0](https://github.com/Davittaai/Sidelane/releases/tag/v1.0.0), October 20, 2026.** The Windows release passed 38 core checks, warning-free WPF compilation, a real Windows process-startup smoke test, and checksum verification. The image above is a design concept, **not a native Windows screenshot**. Real-desktop interaction and media testing remain to be documented in [Windows QA](docs/WINDOWS-QA.md).
 
 ## What you get
 
@@ -15,26 +15,29 @@ A lightweight, customizable Windows sidebar for people switching between AI tool
 - **Appearance:** dark surfaces, font choice, accent, opacity, background image, left/right/free positioning and optional autostart.
 - **Privacy:** local JSON settings only. No accounts, telemetry, online AI integrations, conversation monitoring, or tracking.
 
-## Download and launch on Windows
+## Download and run on Windows
 
-This source package contains everything required to **build** a self-contained Windows executable. You need a Windows x64 PC (Windows 11 recommended; Windows 10 Home is out of Microsoft support) and the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) to compile it once.
+**[Download Sidelane v1.0.0 (Windows x64 ZIP)](https://github.com/Davittaai/Sidelane/releases/download/v1.0.0/Sidelane-win-x64.zip)** · [SHA256 checksum](https://github.com/Davittaai/Sidelane/releases/download/v1.0.0/Sidelane-win-x64.sha256) · [Release notes](https://github.com/Davittaai/Sidelane/releases/tag/v1.0.0)
 
-1. Extract `Sidelane-v1-source.zip`.
-2. Double-click **`Build-Sidelane.cmd`** in the extracted folder.
-3. When the checks and build finish successfully, launch **`release/Sidelane.exe`**.
+1. Download the Windows ZIP and extract it to a regular folder, for example `C:\Tools\Sidelane`.
+2. Double-click **`Sidelane.exe`**. The Windows x64 executable is self-contained, so users **do not** need the .NET SDK.
+3. Hover the 54-pixel rail to expand; right-click for options; press **Ctrl+Alt+Space** to show the sidebar. Open **Preferences** to customize shortcuts and the appearance.
+4. Use the system-tray icon or the sidebar context menu to exit. Temporary tasks and manual AI status labels clear when the app exits.
 
-You can also build manually:
+The executable is **unsigned**. Windows SmartScreen may warn about an unfamiliar publisher. Verify the download checksum and only run files you trust. Read `README-START.txt` in the archive.
+
+**Building from source instead:** On Windows, install the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0), then double-click `Build-Sidelane.cmd` or run:
 
 ```powershell
 dotnet run --project tests/Sidelane.CoreTests/Sidelane.CoreTests.csproj -c Release
 dotnet publish src/Sidelane/Sidelane.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o release
 ```
 
-For an already compiled download, get the [Sidelane-win-x64 artifact from the successful Windows workflow](https://github.com/Davittaai/Sidelane/actions/runs/39376540695/artifacts/12243850722). It is a self-contained x64 ZIP and includes SHA256 verification; GitHub sign-in may be required and CI artifacts expire. For Windows QA, follow [Windows verification](docs/WINDOWS-QA.md).
+## Repository and verification
 
-## Publishing the code to GitHub
+The public source is at **[Davittaai/Sidelane](https://github.com/Davittaai/Sidelane)**, with an MIT license, source tests, Windows CI, and a permanent [v1.0.0 GitHub Release](https://github.com/Davittaai/Sidelane/releases/tag/v1.0.0). CI passed 38 core tests, compiled the WPF application with warnings treated as errors, launched the executable successfully on a Windows runner, and produced checksum-verified release assets.
 
-The source repository is **[Davittaai/Sidelane](https://github.com/Davittaai/Sidelane)**. GitHub Actions builds and tests the Windows source on every push to `main`. [The first successful build](https://github.com/Davittaai/Sidelane/actions/runs/39376540695) passed 38 core tests and published a portable ZIP. Native usability checks remain outstanding, so this is still a release candidate rather than a tested stable release. See [milestones](docs/MILESTONES.md).
+This automated startup check is **not a substitute** for hands-on GUI testing. Windows DPI and multi-monitor positioning, media sessions, and fullscreen coexistence still need real-device QA. See [Windows checklist](docs/WINDOWS-QA.md) and [milestones](docs/MILESTONES.md).
 
 ## Architecture and features
 
