@@ -21,14 +21,14 @@ public partial class App : System.Windows.Application
         _settings = new SettingsService();
         _overlay = new OverlayWindow(_settings);
         _overlay.SettingsRequested += ShowSettings;
-        _overlay.ExitRequested += Exit;
+        _overlay.ExitRequested += ExitApp;
         MainWindow = _overlay;
         _overlay.Show();
         var menu = new System.Windows.Forms.ContextMenuStrip();
         menu.Items.Add("Show / hide sidebar", null, (_, _) => Dispatcher.Invoke(() => _overlay.ToggleVisibility()));
         menu.Items.Add("Settings", null, (_, _) => Dispatcher.Invoke(ShowSettings));
         menu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
-        menu.Items.Add("Exit Sidelane", null, (_, _) => Dispatcher.Invoke(Exit));
+        menu.Items.Add("Exit Sidelane", null, (_, _) => Dispatcher.Invoke(ExitApp));
         _tray = new System.Windows.Forms.NotifyIcon
         {
             Icon = TryGetAppIcon(),
@@ -59,7 +59,7 @@ public partial class App : System.Windows.Application
         finally { _settingsOpen = false; }
     }
 
-    private void Exit()
+    private void ExitApp()
     {
         _overlay?.DisposeNative();
         Shutdown();
