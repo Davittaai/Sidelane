@@ -19,6 +19,7 @@ using Brushes = System.Windows.Media.Brushes;
 using ColorConverter = System.Windows.Media.ColorConverter;
 using ContextMenu = System.Windows.Controls.ContextMenu;
 using MenuItem = System.Windows.Controls.MenuItem;
+using FontFamily = System.Windows.Media.FontFamily;
 
 namespace Sidelane;
 
@@ -140,7 +141,7 @@ public partial class OverlayWindow : Window
         var wallpaper = BackgroundImagePolicy.TryCreateBrush(s.BackgroundImage);
         // Optional wallpaper should never compete with content readability.
         if (wallpaper is not null) wallpaper.Opacity = 0.13;
-        WallPaperLayer.Background = wallpaper ?? Brushes.Transparent;
+        WallPaperLayer.Background = (Brush?)wallpaper ?? Brushes.Transparent;
         PrivacyDot.Fill = AccentBrush;
         if (LogoButton.Content is Border b) b.Background = AccentBrush;
         PinButton.Foreground = s.Locked ? AccentBrush : new SolidColorBrush(Color.FromRgb(160,170,187));
