@@ -19,17 +19,33 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - name: Only publish the latest selected release commit
+        id: selected
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          branch_sha=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/release/v1.0.0" --jq .object.sha)
+          if [ "$branch_sha" = "$HEAD_SHA" ]; then
+            echo "yes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Skipping superseded build $HEAD_SHA; release branch is now $branch_sha"
+            echo "yes=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Download exact successful Windows build
+        if: steps.selected.outputs.yes == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_ID: ${{ github.event.workflow_run.id }}
         run: gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --name Sidelane-win-x64 --dir dist
       - name: Verify SHA256 from Windows build
+        if: steps.selected.outputs.yes == 'true'
         run: |
           cd dist
           sha256sum --check Sidelane-win-x64.sha256
           unzip -l Sidelane-win-x64.zip | grep -E 'Sidelane.exe|LICENSE|README-START.txt'
       - name: Publish verified Windows assets as v1.0.0
+        if: steps.selected.outputs.yes == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
