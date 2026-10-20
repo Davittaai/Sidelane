@@ -6,6 +6,7 @@ using Sidelane.Models;
 using Sidelane.Services;
 
 using ComboBox = System.Windows.Controls.ComboBox;
+using Button = System.Windows.Controls.Button;
 
 namespace Sidelane;
 
