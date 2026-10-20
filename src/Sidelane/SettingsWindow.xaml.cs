@@ -5,6 +5,8 @@ using Microsoft.Win32;
 using Sidelane.Models;
 using Sidelane.Services;
 
+using ComboBox = System.Windows.Controls.ComboBox;
+
 namespace Sidelane;
 
 public partial class SettingsWindow : Window
