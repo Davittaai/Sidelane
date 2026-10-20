@@ -29,9 +29,16 @@ jobs:
         run: dotnet build src/Sidelane/Sidelane.csproj -c Release --no-restore -warnaserror
       - name: Publish self-contained portable Windows binary
         run: dotnet publish src/Sidelane/Sidelane.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o out
+      - name: Native Windows process launch smoke test
+        shell: pwsh
+        run: ./tests/windows_launch_smoke.ps1 -ExePath out/Sidelane.exe
       - name: Package Windows artifact
         shell: pwsh
-        run: Compress-Archive -Path out/* -DestinationPath Sidelane-win-x64.zip
+        run: |
+          Copy-Item README-START.txt out/README-START.txt
+          Copy-Item LICENSE out/LICENSE
+          Copy-Item THIRD_PARTY_NOTICES.md out/THIRD_PARTY_NOTICES.md
+          Compress-Archive -Path out/* -DestinationPath Sidelane-win-x64.zip
       - name: Verify packaged Windows executable
         shell: pwsh
         run: |
