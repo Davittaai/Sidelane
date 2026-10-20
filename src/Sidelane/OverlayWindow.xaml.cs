@@ -10,6 +10,12 @@ using System.Windows.Threading;
 using Sidelane.Models;
 using Sidelane.Services;
 
+using CheckBox = System.Windows.Controls.CheckBox;
+using Brush = System.Windows.Media.Brush;
+using Color = System.Windows.Media.Color;
+using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+using Button = System.Windows.Controls.Button;
+
 namespace Sidelane;
 
 public partial class OverlayWindow : Window
