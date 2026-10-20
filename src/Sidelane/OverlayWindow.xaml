@@ -1,0 +1,146 @@
+<Window x:Class="Sidelane.OverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Sidelane" Width="360" Height="724" MinWidth="54" MinHeight="300"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" Topmost="True" ShowInTaskbar="False" FontFamily="Segoe UI"
+        MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave"
+        Loaded="Window_Loaded" Closing="Window_Closing" Deactivated="Window_Deactivated" KeyDown="Window_KeyDown">
+  <Window.ContextMenu>
+    <ContextMenu>
+      <MenuItem Header="Settings" Click="Settings_Click"/>
+      <MenuItem Header="Hide sidebar" Click="Hide_Click"/>
+      <Separator/>
+      <MenuItem Header="Exit Sidelane" Click="Exit_Click"/>
+    </ContextMenu>
+  </Window.ContextMenu>
+  <Border x:Name="Surface" CornerRadius="16" Background="#191C20" BorderBrush="#46494D" BorderThickness="1" ClipToBounds="True">
+    <Border.Effect><DropShadowEffect Color="#000000" ShadowDepth="7" BlurRadius="28" Opacity="0.48"/></Border.Effect>
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition x:Name="FirstColumn" Width="54"/>
+        <ColumnDefinition x:Name="SecondColumn" Width="306"/>
+      </Grid.ColumnDefinitions>
+      <Border x:Name="WallPaperLayer" Grid.ColumnSpan="2" Background="Transparent" IsHitTestVisible="False"/>
+      <Border x:Name="RailArea" Grid.Column="0" Background="#202226" BorderBrush="#34373B" BorderThickness="0,0,1,0">
+        <DockPanel LastChildFill="True">
+          <StackPanel DockPanel.Dock="Top" Margin="0,13,0,0">
+            <Button x:Name="LogoButton" Click="Logo_Click" Style="{StaticResource IconButton}" ToolTip="Expand or collapse Sidelane"
+                    Width="42" Height="41" Padding="3" Margin="6,0,6,22">
+              <Border CornerRadius="10" Background="#B9D8BF" Width="34" Height="34">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="16" Height="16">
+                  <Rectangle Fill="#1B2921" Width="4" Height="14" RadiusX="2" RadiusY="2" HorizontalAlignment="Left"/>
+                  <Rectangle Fill="#1B2921" Width="4" Height="10" RadiusX="2" RadiusY="2" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                  <Rectangle Fill="#1B2921" Width="4" Height="6" RadiusX="2" RadiusY="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                </Grid>
+              </Border>
+            </Button>
+            <ItemsControl x:Name="RailItems"/>
+          </StackPanel>
+          <StackPanel DockPanel.Dock="Bottom" Margin="0,0,0,11">
+            <Rectangle Height="1" Fill="#393B3F" Margin="14,0,14,9"/>
+            <Button Width="39" Height="37" ToolTip="Preferences" Style="{StaticResource IconButton}" Click="Settings_Click">
+              <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.55" StrokeLineJoin="Round" Width="18" Height="18" Stretch="Uniform"
+                    Data="M 12,3 L 12,5 M 12,19 L 12,21 M 3,12 L 5,12 M 19,12 L 21,12 M 5.6,5.6 L 7,7 M 17,17 L 18.4,18.4 M 5.6,18.4 L 7,17 M 17,7 L 18.4,5.6 M 12,8 A 4,4 0 1 1 11.999,8 Z"/>
+            </Button>
+            <Button Width="39" Height="36" ToolTip="Drag to position sidebar" Style="{StaticResource IconButton}" PreviewMouseLeftButtonDown="Drag_MouseDown">
+              <UniformGrid Columns="2" Rows="3" Width="12" Height="16">
+                <Ellipse Width="3" Height="3" Fill="#7E8288"/><Ellipse Width="3" Height="3" Fill="#7E8288"/>
+                <Ellipse Width="3" Height="3" Fill="#7E8288"/><Ellipse Width="3" Height="3" Fill="#7E8288"/>
+                <Ellipse Width="3" Height="3" Fill="#7E8288"/><Ellipse Width="3" Height="3" Fill="#7E8288"/>
+              </UniformGrid>
+            </Button>
+          </StackPanel>
+        </DockPanel>
+      </Border>
+      <Grid Grid.Column="1" x:Name="ExpandedPane" Background="Transparent">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="62"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="42"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Margin="20,0,16,0">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+          <TextBlock Text="Sidelane" Foreground="#F4F3EF" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
+          <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+            <Button x:Name="PinButton" Style="{StaticResource IconButton}" Width="29" Height="29" ToolTip="Lock window position" Click="Pin_Click">
+              <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.6" Stretch="Uniform" Width="15" Height="15"
+                    Data="M 8,3 L 16,3 L 15,9 L 18,12 L 6,12 L 9,9 Z M 12,12 L 12,21"/>
+            </Button>
+            <Button Style="{StaticResource IconButton}" Width="29" Height="29" ToolTip="Collapse" Click="Collapse_Click">
+              <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.7" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Stretch="Uniform" Width="14" Height="14" Data="M 5,12 L 19,12"/>
+            </Button>
+          </StackPanel>
+        </Grid>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="13,0,11,0" PanningMode="VerticalOnly">
+          <StackPanel Margin="4,1,2,9">
+            <Grid Margin="3,4,5,11">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+              <TextBlock Text="Apps" Foreground="#E7E7E5" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+              <TextBlock x:Name="AppsCount" Grid.Column="1" Text="0 open" Foreground="#848991" FontSize="11" VerticalAlignment="Center"/>
+            </Grid>
+            <Grid Margin="0,0,2,9">
+              <TextBox x:Name="SearchApps" Style="{StaticResource OverlayInput}" Height="33"
+                       ToolTip="Find a configured app" MaxLength="60" TextChanged="SearchApps_TextChanged"
+                       AutomationProperties.Name="Filter apps"/>
+              <TextBlock x:Name="SearchHint" Text="Filter apps" Foreground="#838890" FontSize="12"
+                         Margin="11,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
+            </Grid>
+            <ItemsControl x:Name="AppRows"/>
+            <Rectangle Height="1" Fill="#37393F" Margin="3,15,4,13"/>
+            <Grid Margin="3,0,4,9">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+              <TextBlock Text="Listening" FontSize="13" FontWeight="SemiBold" Foreground="#E7E7E5"/>
+              <TextBlock x:Name="MediaProvider" Grid.Column="1" Text="System media" FontSize="10" Foreground="#80858E" VerticalAlignment="Center"/>
+            </Grid>
+            <Border CornerRadius="11" Background="#25282D" BorderBrush="#363A40" BorderThickness="1" Padding="10,10,8,10">
+              <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="35"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <Border Width="32" Height="32" CornerRadius="7" Background="#343940" VerticalAlignment="Center">
+                  <Path Fill="#BEC4C5" Stretch="Uniform" Width="15" Height="15" HorizontalAlignment="Center" VerticalAlignment="Center" Data="M 13,3 L 13,15 A 3,3 0 1 1 11,12 L 11,7 L 19,5 L 19,13 A 3,3 0 1 1 17,10 L 17,2 Z"/>
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="9,0,4,0">
+                  <TextBlock x:Name="SongTitle" Text="Checking media..." TextTrimming="CharacterEllipsis" Foreground="#EDEEEB" FontSize="11.5" FontWeight="SemiBold"/>
+                  <TextBlock x:Name="SongArtist" Text="" TextTrimming="CharacterEllipsis" Foreground="#989EA4" FontSize="10" Margin="0,3,0,0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" VerticalAlignment="Center" Orientation="Horizontal">
+                  <Button x:Name="PreviousTrack" IsEnabled="False" Content="‹" ToolTip="Previous track" Style="{StaticResource IconButton}" Width="23" Height="29" FontSize="22" Click="Prev_Click"/>
+                  <Button x:Name="PlayPause" IsEnabled="False" Content="▶" ToolTip="Play or pause" Style="{StaticResource IconButton}" Width="26" Height="29" FontSize="13" Click="Play_Click"/>
+                  <Button x:Name="NextTrack" IsEnabled="False" Content="›" ToolTip="Next track" Style="{StaticResource IconButton}" Width="23" Height="29" FontSize="22" Click="Next_Click"/>
+                </StackPanel>
+              </Grid>
+            </Border>
+            <Rectangle Height="1" Fill="#37393F" Margin="3,18,4,13"/>
+            <Grid Margin="3,0,4,11">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+              <TextBlock x:Name="ScratchpadTitle" Text="Scratchpad" FontSize="13" FontWeight="SemiBold" Foreground="#E7E7E5"/>
+              <TextBlock Text="Temporary" Grid.Column="1" FontSize="10" Foreground="#828791" VerticalAlignment="Center" ToolTip="Tasks clear when Sidelane exits"/>
+            </Grid>
+            <ItemsControl x:Name="TaskList" Margin="3,0,0,0"/>
+            <Grid Margin="0,5,2,4">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="34"/></Grid.ColumnDefinitions>
+              <Grid>
+                <TextBox x:Name="NewTask" Style="{StaticResource OverlayInput}" Height="34" MaxLength="120"
+                         ToolTip="Tasks clear on exit" AutomationProperties.Name="New temporary task"
+                         KeyDown="NewTask_KeyDown" TextChanged="NewTask_TextChanged"/>
+                <TextBlock x:Name="TaskHint" Text="Add a task" Foreground="#838890" FontSize="12"
+                           Margin="11,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
+              </Grid>
+              <Button Grid.Column="1" Style="{StaticResource IconButton}" Content="+" FontSize="21" ToolTip="Add a task" Width="32" Height="33" Click="AddTask_Click"/>
+            </Grid>
+          </StackPanel>
+        </ScrollViewer>
+        <Border Grid.Row="2" BorderBrush="#34373B" BorderThickness="0,1,0,0">
+          <Grid Margin="20,0,15,0">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+              <Ellipse x:Name="PrivacyDot" Width="5" Height="5" Fill="#B9D8BF" Margin="0,0,8,0"/>
+              <TextBlock Text="On this device" FontSize="10.5" Foreground="#93979E"/>
+            </StackPanel>
+            <Button Grid.Column="1" Content="Preferences" Style="{StaticResource QuietButton}" Padding="6,4" Click="Settings_Click"/>
+          </Grid>
+        </Border>
+      </Grid>
+    </Grid>
+  </Border>
+</Window>

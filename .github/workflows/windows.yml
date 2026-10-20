@@ -1,0 +1,72 @@
+name: Windows build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v1.*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Validate WPF markup and event references
+        run: python tests/static_check.py
+      - name: Run cross-platform core checks
+        run: dotnet run --project tests/Sidelane.CoreTests/Sidelane.CoreTests.csproj -c Release
+      - name: Restore Windows project
+        run: dotnet restore src/Sidelane/Sidelane.csproj
+      - name: Build Windows project (warnings are errors)
+        run: dotnet build src/Sidelane/Sidelane.csproj -c Release --no-restore -warnaserror
+      - name: Publish self-contained portable Windows binary
+        run: dotnet publish src/Sidelane/Sidelane.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o out
+      - name: Package Windows artifact
+        shell: pwsh
+        run: Compress-Archive -Path out/* -DestinationPath Sidelane-win-x64.zip
+      - name: Verify packaged Windows executable
+        shell: pwsh
+        run: |
+          if (!(Test-Path out/Sidelane.exe)) { throw 'Publish did not produce Sidelane.exe' }
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zip = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path Sidelane-win-x64.zip))
+          try {
+            if (!($zip.Entries | Where-Object FullName -eq 'Sidelane.exe')) {
+              throw 'The packaged archive is missing Sidelane.exe'
+            }
+          } finally { $zip.Dispose() }
+      - name: Generate SHA256 checksum
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash Sidelane-win-x64.zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  Sidelane-win-x64.zip" | Set-Content Sidelane-win-x64.sha256 -Encoding ascii
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Sidelane-win-x64
+          path: |
+            Sidelane-win-x64.zip
+            Sidelane-win-x64.sha256
+          retention-days: 14
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: Sidelane-win-x64
+      - name: Create release for an explicitly pushed tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" Sidelane-win-x64.zip Sidelane-win-x64.sha256 --repo "${GITHUB_REPOSITORY}" --title "Sidelane ${GITHUB_REF_NAME}" --generate-notes --verify-tag

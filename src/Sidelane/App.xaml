@@ -1,0 +1,75 @@
+<Application x:Class="Sidelane.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             ShutdownMode="OnExplicitShutdown">
+  <Application.Resources>
+    <!-- Compact, neutral desktop palette. The user's accent is applied sparingly in code. -->
+    <SolidColorBrush x:Key="SurfaceSecondary" Color="#25282D"/>
+    <SolidColorBrush x:Key="TextPrimary" Color="#F0F0EE"/>
+    <SolidColorBrush x:Key="TextSecondary" Color="#9B9EAA"/>
+    <SolidColorBrush x:Key="Hairline" Color="#32363D"/>
+    <Style x:Key="IconButton" TargetType="Button">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="#B5B8C0"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Padding" Value="5"/>
+      <Setter Property="FontSize" Value="15"/>
+      <Setter Property="FocusVisualStyle">
+        <Setter.Value><Style><Setter Property="Control.Template"><Setter.Value><ControlTemplate><Rectangle Stroke="#C2DABD" StrokeThickness="1.5" RadiusX="9" RadiusY="9" Margin="-2"/></ControlTemplate></Setter.Value></Setter></Style></Setter.Value>
+      </Setter>
+      <Setter Property="Template">
+        <Setter.Value><ControlTemplate TargetType="Button">
+          <Border x:Name="Surface" CornerRadius="9" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="Background" Value="#30343B"/><Setter Property="Foreground" Value="#F2F2F0"/></Trigger>
+            <Trigger Property="IsPressed" Value="True"><Setter TargetName="Surface" Property="Background" Value="#393E46"/></Trigger>
+            <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.32"/></Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="AppRowButton" TargetType="Button">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="8,6"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+      <Setter Property="FocusVisualStyle">
+        <Setter.Value><Style><Setter Property="Control.Template"><Setter.Value><ControlTemplate><Rectangle Stroke="#A8C6B1" StrokeThickness="1" RadiusX="9" RadiusY="9"/></ControlTemplate></Setter.Value></Setter></Style></Setter.Value>
+      </Setter>
+      <Setter Property="Template">
+        <Setter.Value><ControlTemplate TargetType="Button">
+          <Border x:Name="Bg" CornerRadius="10" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bg" Property="Background" Value="#2C3036"/></Trigger>
+            <Trigger Property="IsPressed" Value="True"><Setter TargetName="Bg" Property="Background" Value="#373C44"/></Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="QuietButton" TargetType="Button" BasedOn="{StaticResource IconButton}">
+      <Setter Property="Foreground" Value="#ADB2B8"/><Setter Property="FontSize" Value="11"/>
+    </Style>
+    <Style x:Key="TaskCheck" TargetType="CheckBox">
+      <Setter Property="Foreground" Value="#DEE0DE"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Margin" Value="0,0,0,0"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="MinHeight" Value="29"/>
+    </Style>
+    <Style x:Key="OverlayInput" TargetType="TextBox">
+      <Setter Property="Background" Value="#23262B"/><Setter Property="Foreground" Value="#EEEDEA"/>
+      <Setter Property="BorderBrush" Value="#343840"/><Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CaretBrush" Value="#BBD9C0"/><Setter Property="FontSize" Value="12"/>
+      <Setter Property="Padding" Value="10,6"/>
+      <Style.Triggers>
+        <Trigger Property="IsKeyboardFocused" Value="True"><Setter Property="BorderBrush" Value="#92A99A"/></Trigger>
+      </Style.Triggers>
+    </Style>
+  </Application.Resources>
+</Application>
