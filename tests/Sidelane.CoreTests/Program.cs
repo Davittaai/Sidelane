@@ -81,7 +81,7 @@ var cases = new List<(string Name, Func<bool> Run)>
         Directory.CreateDirectory(Path.Combine(root, "settings.json"));
         var draft = service.EditableCopy(); draft.Accent = "#F0F0F0";
         try { service.Replace(draft); return false; }
-        catch (IOException) { return service.Current.Accent == "#B9D8BF" &&
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return service.Current.Accent == "#B9D8BF" &&
             !Directory.EnumerateFiles(root, "settings-*.tmp").Any(); }
     })),
     ("damaged preferences recover without crashing", () => InSandbox(root =>
