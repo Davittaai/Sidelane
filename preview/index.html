@@ -115,7 +115,7 @@ const menu=document.getElementById('statusMenu');let selected=null;document.quer
 document.querySelectorAll('#statusMenu button').forEach(btn=>btn.onclick=()=>{if(selected){const text=btn.dataset.status;selected.querySelector('.app-detail').textContent=text||'Open website';selected.querySelector('.status-dot').classList.toggle('manual',!!text)}menu.style.display='none'});
 window.addEventListener('click',e=>{if(!menu.contains(e.target))menu.style.display='none'});
 let toastTimer;function showNotice(text){const el=document.getElementById('notice');el.textContent=text;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2600)}
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){settings.classList.remove('show');menu.style.display='none';collapse()}if(e.key==='/'&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName)){e.preventDefault();expand();document.getElementById('appFilter').focus()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){settings.classList.remove('show');menu.style.display='none';document.activeElement.blur();collapse()}if(e.key==='/'&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName)){e.preventDefault();expand();document.getElementById('appFilter').focus()}});
 </script>
 </body>
 </html>

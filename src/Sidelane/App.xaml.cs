@@ -17,7 +17,13 @@ public partial class App : System.Windows.Application
     {
         base.OnStartup(e);
         _mutex = new Mutex(true, "Local\\Sidelane.Overlay.Singleton", out var first);
-        if (!first) { Shutdown(); return; }
+        if (!first)
+        {
+            // A second launch should bring the existing instance back, not appear broken.
+            WindowService.ShowExistingInstance();
+            Shutdown();
+            return;
+        }
         _settings = new SettingsService();
         _overlay = new OverlayWindow(_settings);
         _overlay.SettingsRequested += ShowSettings;
