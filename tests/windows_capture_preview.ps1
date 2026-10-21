@@ -21,6 +21,9 @@ try {
     # On a normal 100%-scaled fresh runner, the rail starts at (28, 100).
     # Moving the cursor may expand it; this event is best-effort on CI desktops.
     [SidelanePointer]::SetCursorPos(40, 125) | Out-Null
+    Start-Sleep -Seconds 1
+    # Move off the icon into the expanded pane to dismiss native tooltips.
+    [SidelanePointer]::SetCursorPos(345, 72) | Out-Null
     Start-Sleep -Seconds 2
     $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
     $width = [Math]::Min(1100, $bounds.Width)
@@ -32,6 +35,11 @@ try {
         finally { $graphics.Dispose() }
         New-Item -ItemType Directory -Force qa-artifacts | Out-Null
         $image.Save('qa-artifacts/native-wpf-ci.png', [System.Drawing.Imaging.ImageFormat]::Png)
+        # A literal crop of the native capture, not a rendered mockup.
+        $cropRect = New-Object System.Drawing.Rectangle(0, 0, [Math]::Min(390, $width), [Math]::Min(735, $height))
+        $crop = $image.Clone($cropRect, $image.PixelFormat)
+        try { $crop.Save('qa-artifacts/native-wpf-sidebar.png', [System.Drawing.Imaging.ImageFormat]::Png) }
+        finally { $crop.Dispose() }
         Write-Host "Captured real Windows CI desktop: ${width}x${height} (not a device QA signoff)"
     }
     finally { $image.Dispose() }
