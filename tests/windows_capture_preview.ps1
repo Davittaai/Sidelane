@@ -36,7 +36,7 @@ try {
         New-Item -ItemType Directory -Force qa-artifacts | Out-Null
         $image.Save('qa-artifacts/native-wpf-ci.png', [System.Drawing.Imaging.ImageFormat]::Png)
         # A literal crop of the native capture, not a rendered mockup.
-        $cropRect = New-Object System.Drawing.Rectangle(0, 0, [Math]::Min(390, $width), [Math]::Min(735, $height))
+        $cropRect = [System.Drawing.Rectangle]::new(0, 0, [Math]::Min(390, $width), [Math]::Min(735, $height))
         $crop = $image.Clone($cropRect, $image.PixelFormat)
         try { $crop.Save('qa-artifacts/native-wpf-sidebar.png', [System.Drawing.Imaging.ImageFormat]::Png) }
         finally { $crop.Dispose() }
