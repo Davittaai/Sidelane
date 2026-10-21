@@ -1,4 +1,4 @@
-# Sidelane v1.1.0-beta.1 — desktop hardening preview
+# Sidelane v1.1 beta — desktop hardening preview
 
 An early preview for testers of the small, local-first Windows sidebar. The existing v1.0.0 remains the stable download until real-device acceptance is complete.
 
@@ -7,6 +7,7 @@ An early preview for testers of the small, local-first Windows sidebar. The exis
 - **Temporary per-app activity notes:** right-click a configured app, select **Set activity note**, type up to 96 characters, and see it in the app row and collapsed-rail tooltip. Notes are in memory only and clear on exit.
 - **Reliable relaunch:** starting the executable again brings the existing sidebar forward instead of silently exiting.
 - **Monitor awareness:** fullscreen activity on another monitor will not suppress the sidebar on its own screen.
+- **Modal editing:** settings and activity-note dialogs keep the sidebar expanded until the editor closes.
 - **Lower background work:** when the sidebar is hidden it skips unnecessary UI/media refreshes, updating when shown again.
 - **Stronger Windows QA:** 44 portable core tests, warning-free WPF build, actual visible 54-pixel rail check, and single-instance launch check in GitHub Actions.
 
