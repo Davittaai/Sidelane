@@ -2,9 +2,9 @@
 
 A lightweight, customizable Windows sidebar for people switching between AI tools, code editors, music, and short tasks. Sidelane stays narrow until you hover or press **Ctrl+Alt+Space**. The expanded panel gives you your current tools without another dashboard to manage.
 
-![Interactive design concept of Sidelane](docs/design-preview.jpg)
+![Actual Sidelane WPF sidebar captured on a Windows runner](docs/native-v1.1.png)
 
-**Stable release: [Sidelane v1.0.0](https://github.com/Davittaai/Sidelane/releases/tag/v1.0.0), October 20, 2026.** The Windows release passed 38 core checks, warning-free WPF compilation, a real Windows process-startup smoke test, and checksum verification. The image above is a design concept, **not a native Windows screenshot**. Real-desktop interaction and media testing remain to be documented in [Windows QA](docs/WINDOWS-QA.md).
+**Stable release: [Sidelane v1.0.0](https://github.com/Davittaai/Sidelane/releases/tag/v1.0.0), October 20, 2026.** The Windows release passed 38 core checks, warning-free WPF compilation, a real Windows process-startup smoke test, and checksum verification. The image above is an **actual WPF application screenshot** from an isolated Windows CI desktop; it does not replace hands-on laptop QA. Real-desktop interaction and media testing remain to be documented in [Windows QA](docs/WINDOWS-QA.md).
 
 ## What you get
 
@@ -15,7 +15,7 @@ A lightweight, customizable Windows sidebar for people switching between AI tool
 - **Appearance:** dark surfaces, font choice, accent, opacity, background image, left/right/free positioning and optional autostart.
 - **Privacy:** local JSON settings only. No accounts, telemetry, online AI integrations, conversation monitoring, or tracking.
 
-**Preview for testers:** [Sidelane v1.1.0-beta.1](https://github.com/Davittaai/Sidelane/releases/tag/v1.1.0-beta.1) includes temporary per-app notes and launch improvements. It is not a stable release until real-device QA is documented.
+**Preview for testers:** [Sidelane v1.1.0-beta.2](https://github.com/Davittaai/Sidelane/releases/tag/v1.1.0-beta.2) includes temporary per-app notes and launch improvements. It is not a stable release until real-device QA is documented.
 
 ## Download and run on Windows
 
