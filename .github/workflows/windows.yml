@@ -40,7 +40,7 @@ jobs:
         if: always()
         with:
           name: Sidelane-native-wpf-preview
-          path: qa-artifacts/native-wpf-ci.png
+          path: qa-artifacts/*.png
           if-no-files-found: ignore
           retention-days: 14
       - name: Package Windows artifact
