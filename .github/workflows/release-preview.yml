@@ -1,0 +1,58 @@
+name: Publish preview after verified Windows build
+
+# Deliberately selected preview branch, never a pull request or untrusted fork.
+on:
+  workflow_run:
+    workflows: ["Windows build"]
+    types: [completed]
+    branches: ["release/v1.1.0-beta.1"]
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  release-preview:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository && github.event.workflow_run.head_branch == 'release/v1.1.0-beta.1' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the release commit is selected branch head
+        id: selected
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          current=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/release/v1.1.0-beta.1" --jq .object.sha)
+          if [ "$current" = "$HEAD_SHA" ]; then
+            echo 'yes=true' >> "$GITHUB_OUTPUT"
+          else
+            echo "Stale build $HEAD_SHA; selected release head $current"
+            echo 'yes=false' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Download verified Windows artifact
+        if: steps.selected.outputs.yes == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --name Sidelane-win-x64 --dir dist
+      - name: Check checksum and executable
+        if: steps.selected.outputs.yes == 'true'
+        run: |
+          cd dist
+          sha256sum --check Sidelane-win-x64.sha256
+          unzip -l Sidelane-win-x64.zip | grep -E 'Sidelane.exe|LICENSE|README-START.txt'
+      - name: Publish preview assets
+        if: steps.selected.outputs.yes == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          if gh release view v1.1.0-beta.1 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload v1.1.0-beta.1 dist/Sidelane-win-x64.zip dist/Sidelane-win-x64.sha256 --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create v1.1.0-beta.1 dist/Sidelane-win-x64.zip dist/Sidelane-win-x64.sha256 \
+              --prerelease --target "$HEAD_SHA" --title "Sidelane v1.1.0 beta 1" \
+              --notes-file docs/RELEASE-NOTES-beta.md --repo "$GITHUB_REPOSITORY"
+          fi

@@ -4,16 +4,18 @@ A lightweight, customizable Windows sidebar for people switching between AI tool
 
 ![Interactive design concept of Sidelane](docs/design-preview.jpg)
 
-**Released: [Sidelane v1.0.0](https://github.com/Davittaai/Sidelane/releases/tag/v1.0.0), October 20, 2026.** The Windows release passed 38 core checks, warning-free WPF compilation, a real Windows process-startup smoke test, and checksum verification. The image above is a design concept, **not a native Windows screenshot**. Real-desktop interaction and media testing remain to be documented in [Windows QA](docs/WINDOWS-QA.md).
+**Stable release: [Sidelane v1.0.0](https://github.com/Davittaai/Sidelane/releases/tag/v1.0.0), October 20, 2026.** The Windows release passed 38 core checks, warning-free WPF compilation, a real Windows process-startup smoke test, and checksum verification. The image above is a design concept, **not a native Windows screenshot**. Real-desktop interaction and media testing remain to be documented in [Windows QA](docs/WINDOWS-QA.md).
 
 ## What you get
 
 - **Apps:** custom ChatGPT, Claude, Grok, Codex, VS Code or arbitrary web shortcuts, with Windows window switching when detectable.
 - **Audio:** artist/track text and playback controls through Windows media-session integration when supported by the player.
 - **Tasks:** a small disposable checklist, wiped when you exit. Task contents are never written to disk.
-- **Status notes:** manually choose working, waiting or ready per app. Sidelane does **not** claim to detect AI generation states automatically.
+- **Status notes:** manually choose working, waiting, ready, or add a **session-only activity note** from the app's right-click menu (v1.1 preview). The note appears in the compact-rail tooltip and clears on exit. Sidelane does **not** detect AI generation states automatically.
 - **Appearance:** dark surfaces, font choice, accent, opacity, background image, left/right/free positioning and optional autostart.
 - **Privacy:** local JSON settings only. No accounts, telemetry, online AI integrations, conversation monitoring, or tracking.
+
+**Preview for testers:** [Sidelane v1.1.0-beta.1](https://github.com/Davittaai/Sidelane/releases/tag/v1.1.0-beta.1) includes temporary per-app notes and launch improvements. It is not a stable release until real-device QA is documented.
 
 ## Download and run on Windows
 

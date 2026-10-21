@@ -8,7 +8,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>Sidelane</AssemblyName>
     <RootNamespace>Sidelane</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>1.1.0-beta.1</Version>
     <ApplicationIcon>Assets\sidelane.ico</ApplicationIcon>
     <Platforms>x64</Platforms>
     <PublishReadyToRun>false</PublishReadyToRun>
