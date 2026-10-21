@@ -31,7 +31,7 @@ public partial class OverlayWindow : Window
     private readonly WindowService _windows = new();
     private readonly MediaService _media = new();
     private readonly List<CheckBox> _tasks = new();
-    private readonly Dictionary<string, string> _manualStatuses = new();
+    private readonly SessionActivityStore _activities = new();
     private readonly DispatcherTimer _refresh = new() { Interval = TimeSpan.FromSeconds(4) };
     private readonly DispatcherTimer _focusRefresh = new() { Interval = TimeSpan.FromMilliseconds(1000) };
     private readonly DispatcherTimer _collapseDelay = new() { Interval = TimeSpan.FromMilliseconds(240) };
@@ -59,6 +59,7 @@ public partial class OverlayWindow : Window
         _refresh.Tick += async (_, _) => await RefreshAsync();
         _focusRefresh.Tick += (_, _) =>
         {
+            if (!IsVisible) return; // Hidden overlays should not rebuild their UI every second.
             var focused = NativeMethods.GetForegroundWindow();
             if (focused != _lastFocused) { _lastFocused = focused; RebuildApps(); }
             UpdateAlwaysOnTop();
@@ -109,6 +110,7 @@ public partial class OverlayWindow : Window
             Show();
             SetExpanded(true);
             Activate();
+            _ = RefreshAsync();
             handled = true;
         }
         return IntPtr.Zero;
@@ -241,7 +243,7 @@ public partial class OverlayWindow : Window
 
     private async Task RefreshAsync()
     {
-        if (_refreshing) return;
+        if (_refreshing || _closing || !IsVisible) return;
         _refreshing = true;
         try
         {
@@ -292,12 +294,14 @@ public partial class OverlayWindow : Window
         {
             var target = _available.FirstOrDefault(w => WindowService.Matches(w, item.Match));
             if (target is not null) visible++;
-            var manual = _manualStatuses.TryGetValue(item.Name, out var note) ? ToStatusName(note) : null;
+            var activity = _activities.Get(item.Name);
+            var manual = activity.Status.Length > 0 ? ToStatusName(activity.Status) : null;
             var isFocused = target is not null && WindowService.IsFocused(target.Handle);
             var state = manual ?? (isFocused ? "In focus" :
                 target is not null ? "Open" :
                 LinkPolicy.TryGetWebTarget(item.Url, out _) ? "Open website" : "Not open");
-            var dotColor = manual is not null || isFocused ? AccentBrush :
+            if (activity.Note.Length > 0) state = activity.Note;
+            var dotColor = manual is not null || activity.Note.Length > 0 || isFocused ? AccentBrush :
                 (target is not null ? new SolidColorBrush(Color.FromRgb(127,135,139)) :
                 new SolidColorBrush(Color.FromRgb(91,96,104)));
 
@@ -305,9 +309,7 @@ public partial class OverlayWindow : Window
             {
                 Style = (Style)FindResource("AppRowButton"),
                 Height = 48, Margin = new Thickness(0,0,0,2),
-                ToolTip = target is null
-                    ? (LinkPolicy.TryGetWebTarget(item.Url, out _) ? "Open configured website" : "No matching window or website configured")
-                    : target.Title
+                ToolTip = BuildShortcutTooltip(item.Name, state, target?.Title, manual)
             };
             var grid = new Grid();
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(34) });
@@ -336,9 +338,23 @@ public partial class OverlayWindow : Window
             foreach (var pair in new[] { ("Mark working", "working"), ("Mark waiting", "waiting"), ("Mark ready", "ready"), ("Clear manual status", "") })
             {
                 var menu = new MenuItem { Header = pair.Item1 };
-                menu.Click += (_, _) => { if (pair.Item2 == "") _manualStatuses.Remove(item.Name); else _manualStatuses[item.Name] = pair.Item2; RebuildApps(); };
+                menu.Click += (_, _) => { _activities.SetStatus(item.Name, pair.Item2); RebuildApps(); };
                 context.Items.Add(menu);
             }
+            context.Items.Add(new Separator());
+            var editNote = new MenuItem { Header = "Set activity note..." };
+            editNote.Click += (_, _) =>
+            {
+                var previous = _activities.Get(item.Name).Note;
+                var response = ActivityNoteWindow.Prompt(this, item.Name, previous);
+                if (response is null) return; // cancelled
+                _activities.SetNote(item.Name, response);
+                RebuildApps();
+            };
+            context.Items.Add(editNote);
+            var clearNote = new MenuItem { Header = "Clear activity note", IsEnabled = activity.Note.Length > 0 };
+            clearNote.Click += (_, _) => { _activities.SetNote(item.Name, ""); RebuildApps(); };
+            context.Items.Add(clearNote);
             btn.ContextMenu = context;
             if (filter.Length == 0 || item.Name.Contains(filter, StringComparison.OrdinalIgnoreCase) ||
                 state.Contains(filter, StringComparison.OrdinalIgnoreCase))
@@ -351,7 +367,7 @@ public partial class OverlayWindow : Window
                     Content = item.Symbol, FontSize = 18, Width = 39, Height = 40,
                     Foreground = isFocused ? AccentBrush : new SolidColorBrush(Color.FromRgb(170,175,178)),
                     Style = (Style)FindResource("IconButton"),
-                    ToolTip = item.Name + " · " + state, Margin = new Thickness(0,0,0,4),
+                    ToolTip = BuildShortcutTooltip(item.Name, state, target?.Title, manual), Margin = new Thickness(0,0,0,4),
                     Background = isFocused ? new SolidColorBrush(Color.FromRgb(47,55,53)) : Brushes.Transparent
                 };
                 rail.Click += (_, _) => ActivateShortcut(item);
@@ -359,6 +375,17 @@ public partial class OverlayWindow : Window
             }
         }
         AppsCount.Text = $"{visible} open";
+    }
+
+    private static string BuildShortcutTooltip(string appName, string state, string? windowTitle, string? manualStatus)
+    {
+        var tooltip = appName + "\n" + state;
+        if (manualStatus is not null && !state.Equals(manualStatus, StringComparison.Ordinal))
+            tooltip += "\n" + manualStatus;
+        if (!string.IsNullOrWhiteSpace(windowTitle) &&
+            !windowTitle.Equals(appName, StringComparison.OrdinalIgnoreCase))
+            tooltip += "\nWindow: " + windowTitle;
+        return tooltip;
     }
 
     private void SearchApps_TextChanged(object sender, TextChangedEventArgs e)
@@ -428,7 +455,7 @@ public partial class OverlayWindow : Window
     public void ToggleVisibility()
     {
         if (IsVisible) Hide();
-        else { Show(); _lastFullscreen = null; SetExpanded(true); UpdateAlwaysOnTop(); Activate(); }
+        else { Show(); _lastFullscreen = null; SetExpanded(true); UpdateAlwaysOnTop(); Activate(); _ = RefreshAsync(); }
     }
 
     private void Window_Closing(object sender, CancelEventArgs e)

@@ -114,6 +114,49 @@ var cases = new List<(string Name, Func<bool> Run)>
         var apps = new SettingsService(root).Current.Shortcuts;
         return apps.Count == 2 && apps[0].Name == "Claude";
     })),
+    ("session activity notes are trimmed", () =>
+    {
+        var store = new SessionActivityStore();
+        store.SetNote("ChatGPT", "  Shipping Sidelane v1.1  ");
+        return store.Get("ChatGPT").Note == "Shipping Sidelane v1.1";
+    }),
+    ("session activity notes are limited to 96 characters", () =>
+    {
+        var store = new SessionActivityStore();
+        store.SetNote("Claude", new string('x', 400));
+        return store.Get("Claude").Note.Length == 96;
+    }),
+    ("session status only accepts known states", () =>
+    {
+        var store = new SessionActivityStore();
+        store.SetStatus("Grok", "working");
+        var accepted = store.Get("Grok").Status == "working";
+        store.SetStatus("Grok", "unverified");
+        return accepted && store.Get("Grok").Status.Length == 0;
+    }),
+    ("session activity names are case-insensitive", () =>
+    {
+        var store = new SessionActivityStore();
+        store.SetNote("ChatGPT", "Running QA");
+        return store.Get("chatgpt").Note == "Running QA";
+    }),
+    ("clearing a session note preserves status", () =>
+    {
+        var store = new SessionActivityStore();
+        store.SetStatus("ChatGPT", "waiting");
+        store.SetNote("ChatGPT", "Waiting for tests");
+        store.SetNote("ChatGPT", "");
+        return store.Get("ChatGPT").Status == "waiting" && store.Get("ChatGPT").Note.Length == 0;
+    }),
+    ("session activity is not shared between instances or settings", () =>
+    {
+        var first = new SessionActivityStore();
+        first.SetStatus("ChatGPT", "working");
+        first.SetNote("ChatGPT", "Secret temporary task");
+        var clean = new SessionActivityStore();
+        return clean.Get("ChatGPT").Note == "" && clean.Get("ChatGPT").Status == "" &&
+            !System.Text.Json.JsonSerializer.Serialize(new AppSettings()).Contains("Secret temporary task");
+    }),
     ("malformed preference list capped at twelve", () => InSandbox(root =>
     {
         var input = new AppSettings { Shortcuts = Enumerable.Range(1, 20)

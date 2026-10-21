@@ -9,6 +9,14 @@ public sealed record WindowEntry(IntPtr Handle, string Title, string Process);
 public sealed class WindowService
 {
     public IntPtr OwnHandle { get; set; }
+
+    public static void ShowExistingInstance()
+    {
+        var hwnd = NativeMethods.FindWindow(null, "Sidelane");
+        if (hwnd == IntPtr.Zero) return;
+        NativeMethods.ShowWindow(hwnd, NativeMethods.SW_SHOW);
+        NativeMethods.SetForegroundWindow(hwnd);
+    }
     public IReadOnlyList<WindowEntry> Enumerate()
     {
         var result = new List<WindowEntry>();
@@ -43,6 +51,9 @@ public sealed class WindowService
         if (foreground == IntPtr.Zero || foreground == ownHandle ||
             !NativeMethods.IsWindowVisible(foreground) ||
             !NativeMethods.GetWindowRect(foreground, out var bounds)) return false;
+        // Fullscreen on monitor B should not hide a sidebar on monitor A.
+        if (System.Windows.Forms.Screen.FromHandle(foreground).DeviceName !=
+            System.Windows.Forms.Screen.FromHandle(ownHandle).DeviceName) return false;
         var screen = System.Windows.Forms.Screen.FromHandle(foreground).Bounds;
         // Compare against monitor bounds (not working area): maximized windows must NOT
         // trigger fullscreen detection simply because they cover the usable desktop.
