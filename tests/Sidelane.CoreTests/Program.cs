@@ -45,6 +45,13 @@ var cases = new List<(string Name, Func<bool> Run)>
     ("empty destination rejected", () => !LinkPolicy.TryGetWebTarget("", out _)),
     ("new settings defaults are non-invasive", () => new AppSettings().RespectFullscreen &&
         !new AppSettings().StartupAtLogin),
+    ("default sidebar is opaque for readability", () => new AppSettings().Opacity == 1.0),
+    ("custom translucency remains available", () => InSandbox(root =>
+    {
+        var prefs = new AppSettings { Opacity = .75 };
+        File.WriteAllText(Path.Combine(root, "settings.json"), JsonSerializer.Serialize(prefs));
+        return Math.Abs(new SettingsService(root).Current.Opacity - .75) < .001;
+    })),
     ("default app slots present", () => ShortcutSettings.Defaults().Count == 5),
     ("temporary tasks absent from settings model", () => typeof(AppSettings).GetProperties()
         .All(p => p.Name != "Tasks" && p.Name != "ManualStatuses")),

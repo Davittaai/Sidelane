@@ -12,7 +12,7 @@ public sealed class AppSettings
     public string Edge { get; set; } = "Left";
     // Remembers which side of the panel holds the rail when dragged to a free position.
     public bool RailOnRight { get; set; }
-    public double Opacity { get; set; } = 0.96;
+    public double Opacity { get; set; } = 1.0;
     public string Accent { get; set; } = "#B9D8BF";
     public string Background { get; set; } = "#191C20";
     public string Font { get; set; } = "Segoe UI";

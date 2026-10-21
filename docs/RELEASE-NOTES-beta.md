@@ -8,6 +8,7 @@ An early preview for testers of the small, local-first Windows sidebar. The exis
 - **Reliable relaunch:** starting the executable again brings the existing sidebar forward instead of silently exiting.
 - **Monitor awareness:** fullscreen activity on another monitor will not suppress the sidebar on its own screen.
 - **Modal editing:** settings and activity-note dialogs keep the sidebar expanded until the editor closes.
+- **Improved readability:** the default sidebar is opaque charcoal, with optional adjustable transparency.
 - **Lower background work:** when the sidebar is hidden it skips unnecessary UI/media refreshes, updating when shown again.
 - **Stronger Windows QA:** 44 portable core tests, warning-free WPF build, actual visible 54-pixel rail check, and single-instance launch check in GitHub Actions.
 
