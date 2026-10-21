@@ -47,7 +47,7 @@ public sealed class ActivityNoteWindow : Window
             FontSize = 10, Margin = new Thickness(0, 8, 0, 10)
         };
         DockPanel.SetDock(help, Dock.Bottom);
-        var controls = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
+        var controls = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
         var cancel = new Button { Content = "Cancel", Width = 76, Height = 31, Margin = new Thickness(0, 0, 8, 0) };
         cancel.Click += (_, _) => { DialogResult = false; };
         var save = new Button { Content = "Save note", Width = 95, Height = 31,
