@@ -72,7 +72,7 @@ public sealed class SettingsService
         settings.Edge = settings.Edge is "Left" or "Right" or "Free" ? settings.Edge : "Left";
         if (settings.Edge == "Right") settings.RailOnRight = true;
         else if (settings.Edge == "Left") settings.RailOnRight = false;
-        settings.Opacity = double.IsFinite(settings.Opacity) ? Math.Clamp(settings.Opacity, .65, 1) : .96;
+        settings.Opacity = double.IsFinite(settings.Opacity) ? Math.Clamp(settings.Opacity, .65, 1) : 1.0;
         settings.Left = double.IsFinite(settings.Left) ? settings.Left : 28;
         settings.Top = double.IsFinite(settings.Top) ? settings.Top : 100;
         settings.Accent = ValidColor(settings.Accent, "#B9D8BF");

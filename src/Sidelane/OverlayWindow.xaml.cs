@@ -39,6 +39,7 @@ public partial class OverlayWindow : Window
     private bool _expanded;
     private bool _closing;
     private bool _refreshing;
+    private bool _modalOpen;
     private IntPtr _lastFocused;
     private bool? _lastFullscreen;
     private IReadOnlyList<WindowEntry> _available = Array.Empty<WindowEntry>();
@@ -67,7 +68,7 @@ public partial class OverlayWindow : Window
         _collapseDelay.Tick += (_, _) =>
         {
             _collapseDelay.Stop();
-            if (_settings.Current.AutoCollapse && !IsMouseOver && !IsKeyboardFocusWithin)
+            if (!_modalOpen && _settings.Current.AutoCollapse && !IsMouseOver && !IsKeyboardFocusWithin)
                 SetExpanded(false);
         };
 
@@ -186,12 +187,21 @@ public partial class OverlayWindow : Window
 
     private void Window_MouseLeave(object sender, MouseEventArgs e)
     {
-        if (_settings.Current.AutoCollapse && _expanded) _collapseDelay.Start();
+        if (!_modalOpen && _settings.Current.AutoCollapse && _expanded) _collapseDelay.Start();
     }
 
     private void Window_Deactivated(object? sender, EventArgs e)
     {
-        if (_settings.Current.AutoCollapse && _expanded && !IsMouseOver)
+        if (!_modalOpen && _settings.Current.AutoCollapse && _expanded && !IsMouseOver)
+            _collapseDelay.Start();
+    }
+
+    // Keep an owned dialog's parent expanded until the editor closes.
+    public void HoldExpandedForDialog(bool hold)
+    {
+        _modalOpen = hold;
+        if (hold) { _collapseDelay.Stop(); SetExpanded(true); }
+        else if (_settings.Current.AutoCollapse && !IsMouseOver && !IsKeyboardFocusWithin)
             _collapseDelay.Start();
     }
 
@@ -346,7 +356,10 @@ public partial class OverlayWindow : Window
             editNote.Click += (_, _) =>
             {
                 var previous = _activities.Get(item.Name).Note;
-                var response = ActivityNoteWindow.Prompt(this, item.Name, previous);
+                HoldExpandedForDialog(true);
+                string? response;
+                try { response = ActivityNoteWindow.Prompt(this, item.Name, previous); }
+                finally { HoldExpandedForDialog(false); }
                 if (response is null) return; // cancelled
                 _activities.SetNote(item.Name, response);
                 RebuildApps();

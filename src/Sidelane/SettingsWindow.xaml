@@ -114,7 +114,7 @@
         <CheckBox x:Name="LockPositionInput" Content="Lock position" Margin="0,0,0,18"/>
         <Rectangle Height="1" Fill="{StaticResource Line}" Margin="0,0,0,21"/>
         <TextBlock Text="Shortcuts" Style="{StaticResource SectionLabel}" Margin="0,0,0,7"/>
-        <TextBlock Text="Choose the apps shown on your rail. Activity labels are set manually." Foreground="{StaticResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,13"/>
+        <TextBlock Text="Choose your app shortcuts. Right-click a sidebar app to set a temporary activity note." Foreground="{StaticResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,13"/>
         <ListBox x:Name="ShortcutList" Height="112" Background="#25292D" Foreground="#E7E9E7" BorderBrush="#3D4248" DisplayMemberPath="Name" SelectionChanged="ShortcutList_SelectionChanged"/>
         <Grid Margin="0,12,0,10">
           <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="85"/></Grid.ColumnDefinitions>

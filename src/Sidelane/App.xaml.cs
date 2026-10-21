@@ -57,12 +57,13 @@ public partial class App : System.Windows.Application
         if (_overlay is null || _settings is null) return;
         if (_settingsOpen) return;
         _settingsOpen = true;
+        _overlay.HoldExpandedForDialog(true);
         try
         {
             var dialog = new SettingsWindow(_settings) { Owner = _overlay };
             if (dialog.ShowDialog() == true) _overlay.ApplyAppearance();
         }
-        finally { _settingsOpen = false; }
+        finally { _overlay.HoldExpandedForDialog(false); _settingsOpen = false; }
     }
 
     private void ExitApp()
