@@ -1,6 +1,6 @@
 # Sidelane product completion plan
 
-Status: **v1.0.0 public release; v1.1 hardening in progress** (2026-10-21).
+Status: **v1.0.0 public release, v1.1 beta available; final physical Windows acceptance pending** (2026-10-22).
 
 ## Product definition
 
@@ -20,7 +20,7 @@ Sidelane is a free, open-source, self-contained Windows 10/11 (x64) floating sid
 - [x] Do not suppress a sidebar on monitor A just because monitor B is fullscreen (v1.1 source)
 - [x] Skip hidden overlay window/media polling and refresh on reappearance (v1.1 source)
 - [x] Improve Windows CI smoke to validate visible collapsed rail and single-instance policy (v1.1 source)
-- [ ] **Windows CI must be green for the new changes.** Never mark tests green before logs confirm.
+- [x] **Windows CI was green for the v1.1 beta source changes**, including core tests and startup smoke (2026-10-21). Subsequent commits require fresh checks.
 - [ ] **Real Windows laptop UI acceptance.** Hover, focus, move, pin, tray, media, settings, startup, fullscreen, second monitor, DPI and alt-tab.
 - [ ] Confirm no residual session notes/tasks on app relaunch, no user content in AppData files, and no unexpected outbound network requests.
 
@@ -52,3 +52,11 @@ Sidelane is a free, open-source, self-contained Windows 10/11 (x64) floating sid
 ## Release gate
 
 Automated CI success means the binary **builds and starts on GitHub Windows**, not that its visual desktop workflow has passed. Close M2 only when the real-device checklist is signed off with OS build, monitors, scaling, screenshots, and pass/fail evidence. Do not silently broaden the no-saving requirement: appearance preferences persist, task/activity contents must not.
+
+## October 22 execution update
+
+- Fixed preview publisher's missing `HEAD_BRANCH` environment variable in `.github/workflows/release-preview.yml`. The previous publish-preview workflow had failed, despite a successful Windows build.
+- Added `tests/windows_local_acceptance.ps1` for opt-in, **local-only** executable SHA256, Windows environment and resource measurements. It deliberately omits task text, notes, window titles, browser URLs, and chat content; it does **not** perform automated GUI validation.
+- To use it on a physical Windows device: `pwsh -File tests/windows_local_acceptance.ps1 -ExePath ./release/Sidelane.exe -IdleSeconds 300` from the project directory (or supply the actual extracted EXE path). Review the JSON in `qa-local/`; do not commit the report without inspecting it.
+- **Release blockers remain:** genuine manual 100/125/150% DPI, second monitor/fullscreen, keyboard and media QA, privacy verification with file/network inspection, real WPF screenshots, and clean-machine install/SmartScreen experience.
+- Stable v1.1 promotion must not occur solely because CI is green. The existing v1.1 beta is the testing candidate.
