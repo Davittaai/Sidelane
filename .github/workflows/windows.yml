@@ -21,6 +21,16 @@ jobs:
           dotnet-version: '10.0.x'
       - name: Validate WPF markup and event references
         run: python tests/static_check.py
+      - name: Validate local acceptance PowerShell syntax
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path tests/windows_local_acceptance.ps1),
+            [ref]$tokens, [ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) { throw ($errors | Out-String) }
       - name: Run cross-platform core checks
         run: dotnet run --project tests/Sidelane.CoreTests/Sidelane.CoreTests.csproj -c Release
       - name: Restore Windows project
