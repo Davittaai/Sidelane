@@ -33,6 +33,40 @@ public sealed class SettingsService
         Normalize(Current);
     }
 
+    private const long MaxImportBytes = 256 * 1024;
+
+    /// <summary>Export only saved preferences; scratchpad tasks and activity notes are never included.</summary>
+    public void Export(string destination)
+    {
+        var temp = destination + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            File.WriteAllText(temp, JsonSerializer.Serialize(Current, JsonOptions));
+            File.Move(temp, destination, true);
+        }
+        finally
+        {
+            if (File.Exists(temp)) File.Delete(temp);
+        }
+    }
+
+    /// <summary>Import a Sidelane preferences file after validating it; live settings stay unchanged on failure.</summary>
+    public void Import(string path)
+    {
+        var file = new FileInfo(path);
+        if (!file.Exists || file.Length is < 2 or > MaxImportBytes)
+            throw new InvalidDataException("The settings file is missing or exceeds 256 KB.");
+        var content = File.ReadAllText(path);
+        using var document = JsonDocument.Parse(content);
+        if (document.RootElement.ValueKind != JsonValueKind.Object ||
+            !document.RootElement.TryGetProperty("Shortcuts", out var shortcuts) ||
+            shortcuts.ValueKind != JsonValueKind.Array)
+            throw new InvalidDataException("This is not a Sidelane settings export.");
+        var replacement = JsonSerializer.Deserialize<AppSettings>(content)
+            ?? throw new InvalidDataException("Could not read the settings.");
+        Replace(replacement);
+    }
+
     public AppSettings EditableCopy() =>
         JsonSerializer.Deserialize<AppSettings>(JsonSerializer.Serialize(Current)) ?? new AppSettings();
 

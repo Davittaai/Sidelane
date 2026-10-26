@@ -21,6 +21,43 @@ var cases = new List<(string Name, Func<bool> Run)>
     ("explicit app mode never falls back if app moved", () =>
         LaunchPolicy.Create(new ShortcutSettings { LaunchMode = "App",
             AppPath = @"C:\Apps\missing-sidelane.exe", Url = "https://chatgpt.com/" }, _ => null) is null),
+    ("settings export/import preserves launch choices and themes", () => InSandbox(root =>
+    {
+        var service = new SettingsService(root);
+        service.Current.Background = "#17212D";
+        service.Current.Shortcuts[0].LaunchMode = "Browser";
+        service.Current.Shortcuts[0].Browser = "Firefox";
+        service.Save();
+        var exported = Path.Combine(root, "sidelane-backup.json");
+        service.Export(exported);
+        var restored = new SettingsService(Path.Combine(root, "fresh"));
+        restored.Import(exported);
+        return restored.Current.Background == "#17212D" &&
+            restored.Current.Shortcuts[0].Browser == "Firefox" &&
+            restored.Current.Shortcuts[0].LaunchMode == "Browser" &&
+            !File.ReadAllText(exported).Contains("Secret temporary task");
+    })),
+    ("bad import cannot overwrite live user settings", () => InSandbox(root =>
+    {
+        var service = new SettingsService(root);
+        service.Current.Accent = "#11AA44";
+        service.Save();
+        var bad = Path.Combine(root, "wrong.json");
+        File.WriteAllText(bad, "{\"unrelated\":true}");
+        try { service.Import(bad); return false; }
+        catch (InvalidDataException)
+        {
+            return service.Current.Accent == "#11AA44" &&
+                new SettingsService(root).Current.Accent == "#11AA44";
+        }
+    })),
+    ("oversized import is rejected before parsing", () => InSandbox(root =>
+    {
+        var file = Path.Combine(root, "huge.json");
+        File.WriteAllText(file, new string('x', 256 * 1024 + 1));
+        try { new SettingsService(root).Import(file); return false; }
+        catch (InvalidDataException) { return true; }
+    })),
     ("native app mode accepts only existing files", () =>
         LaunchPolicy.Create(new ShortcutSettings { LaunchMode="App", AppPath=@"C:\does-not-exist-sidelane.exe" },
             _ => null) is null),

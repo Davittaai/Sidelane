@@ -9,6 +9,7 @@ using Sidelane.Services;
 using ComboBox = System.Windows.Controls.ComboBox;
 using Button = System.Windows.Controls.Button;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 using ColorDialog = System.Windows.Forms.ColorDialog;
 using DrawingColor = System.Drawing.Color;
 using SolidColorBrush = System.Windows.Media.SolidColorBrush;
@@ -204,6 +205,55 @@ public partial class SettingsWindow : Window
             _shortcuts.Remove(chosen);
             ShortcutList.SelectedIndex = -1;
             NameInput.Clear(); SymbolInput.Text = "◈"; MatchInput.Clear(); UrlInput.Clear();
+        }
+    }
+
+    private void ExportSettings_Click(object sender, RoutedEventArgs e)
+    {
+        Validation.Text = "";
+        var dialog = new SaveFileDialog
+        {
+            Title = "Export saved Sidelane preferences",
+            Filter = "Sidelane preferences (*.json)|*.json",
+            FileName = "sidelane-settings.json",
+            AddExtension = true,
+            OverwritePrompt = true
+        };
+        if (dialog.ShowDialog(this) != true) return;
+        try
+        {
+            _settings.Export(dialog.FileName);
+            Validation.Text = "Saved preferences exported. Review shortcut URLs and local paths before sharing.";
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
+        {
+            Validation.Text = "Export failed: " + ex.Message;
+        }
+    }
+
+    private void ImportSettings_Click(object sender, RoutedEventArgs e)
+    {
+        Validation.Text = "";
+        var dialog = new OpenFileDialog
+        {
+            Title = "Import Sidelane preferences",
+            Filter = "Sidelane preferences (*.json)|*.json",
+            CheckFileExists = true
+        };
+        if (dialog.ShowDialog(this) != true) return;
+        var decision = System.Windows.MessageBox.Show(
+            "Replace your current saved Sidelane appearance and shortcuts with the selected file? Temporary tasks will remain unchanged until exit.",
+            "Import preferences", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        if (decision != MessageBoxResult.Yes) return;
+        try
+        {
+            _settings.Import(dialog.FileName);
+            DialogResult = true; // Apply imported settings immediately in the existing overlay.
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException
+            or System.Text.Json.JsonException or InvalidDataException)
+        {
+            Validation.Text = "Import rejected: " + ex.Message;
         }
     }
 
