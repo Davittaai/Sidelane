@@ -41,7 +41,7 @@ public partial class App : System.Windows.Application
         var menu = new System.Windows.Forms.ContextMenuStrip();
         menu.Items.Add("Show / hide sidebar", null, (_, _) => Dispatcher.Invoke(() => _overlay.ToggleVisibility()));
         menu.Items.Add("Settings", null, (_, _) => Dispatcher.Invoke(ShowSettings));
-        menu.Items.Add("Quick setup...", null, (_, _) => Dispatcher.Invoke(ShowSetup));
+        menu.Items.Add("Quick setup...", null, (_, _) => Dispatcher.Invoke(() => ShowSetup(true)));
         menu.Items.Add("Check for updates", null, (_, _) => Dispatcher.Invoke(async () => await CheckForUpdatesAsync(true)));
         menu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
         menu.Items.Add("Exit Sidelane", null, (_, _) => Dispatcher.Invoke(ExitApp));
@@ -62,7 +62,7 @@ public partial class App : System.Windows.Application
         else if (e.Args.Any(x => x.Equals("--setup", StringComparison.OrdinalIgnoreCase)) ||
                  (_settings.IsFreshProfile && !e.Args.Any(x =>
                      x.Equals("--smoke-test", StringComparison.OrdinalIgnoreCase))))
-            Dispatcher.BeginInvoke(new Action(ShowSetup));
+            Dispatcher.BeginInvoke(new Action(() => ShowSetup(false)));
     }
 
     private static System.Drawing.Icon TryGetAppIcon()
@@ -151,10 +151,10 @@ public partial class App : System.Windows.Application
         }
     }
 
-    private void ShowSetup()
+    private void ShowSetup(bool confirmReconfigure)
     {
         if (_overlay is null || _settings is null || _settingsOpen) return;
-        if (!_settings.IsFreshProfile && System.Windows.MessageBox.Show(
+        if (confirmReconfigure && !_settings.IsFreshProfile && System.Windows.MessageBox.Show(
             "Quick setup can replace your configured shortcuts and colors. Continue? You can export a backup first in Preferences.",
             "Reconfigure workspace", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
         _settingsOpen = true;
