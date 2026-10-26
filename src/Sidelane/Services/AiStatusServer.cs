@@ -40,8 +40,14 @@ public sealed class AiStatusServer : IDisposable
                 var line = await reader.ReadLineAsync(_stop.Token);
                 if (line is not null && AiSignalPolicy.Parse(line) is { } signal)
                 {
-                    lock (_gate) _states[signal.Provider] = (signal.State, DateTimeOffset.UtcNow.AddSeconds(12));
-                    Updated?.Invoke();
+                    bool changed;
+                    lock (_gate)
+                    {
+                        changed = !_states.TryGetValue(signal.Provider, out var previous) ||
+                                  previous.State != signal.State || previous.Until <= DateTimeOffset.UtcNow;
+                        _states[signal.Provider] = (signal.State, DateTimeOffset.UtcNow.AddSeconds(12));
+                    }
+                    if (changed) Updated?.Invoke();
                 }
             }
             catch (OperationCanceledException) { break; }
