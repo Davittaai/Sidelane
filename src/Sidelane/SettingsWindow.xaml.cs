@@ -121,7 +121,12 @@ public partial class SettingsWindow : Window
 
     private void BrowseApp_Click(object sender, RoutedEventArgs e)
     {
-        var picker = new OpenFileDialog { Filter = "Windows applications and shortcuts|*.exe;*.lnk", CheckFileExists = true };
+        var picker = new OpenFileDialog {
+            Filter = "Windows applications and shortcuts|*.exe;*.lnk",
+            CheckFileExists = true,
+            InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Programs),
+            RestoreDirectory = true
+        };
         if (picker.ShowDialog() == true) AppPathInput.Text = picker.FileName;
     }
 
