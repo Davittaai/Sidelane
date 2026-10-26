@@ -14,6 +14,16 @@ var cases = new List<(string Name, Func<bool> Run)>
         ScreenPlacement.EdgeRailLeft("Right", 0, 0, 1920, railWidth: 72) == 1836),
     ("custom expanded size stays anchored", () =>
         ScreenPlacement.WindowLeft(1836, true, true, 0, 1920, railWidth: 72, expandedWidth: 480) == 1428),
+    ("AI signal accepts only known providers and states", () =>
+        AiSignalPolicy.Parse("{\"provider\":\"ChatGPT\",\"state\":\"generating\"}") is { Provider: "ChatGPT" }),
+    ("AI signal refuses invalid browser payload", () =>
+        AiSignalPolicy.Parse("{\"provider\":\"Other\",\"state\":\"generating\"}") is null),
+    ("AI signal rejects prompt and reply payloads", () =>
+        AiSignalPolicy.Parse(new string('x', 300)) is null),
+    ("official update feed rejects spoofed release URLs", () =>
+        UpdateService.Parse("{\"tag_name\":\"v1.9.0\",\"html_url\":\"https://evil.example/release\"}", new Version(1, 2)) is null),
+    ("official update feed accepts newer stable release", () =>
+        UpdateService.Parse("{\"tag_name\":\"v1.9.0\",\"html_url\":\"https://github.com/Davittaai/Sidelane/releases/tag/v1.9.0\"}", new Version(1, 2)) is not null),
     ("right edge anchors narrow rail", () => Math.Abs(ScreenPlacement.EdgeRailLeft("Right", 80, 0, 1920) - 1854) < .001),
     ("right rail expands to left", () => ScreenPlacement.WindowLeft(1854, true, true, 0, 1920) == 1548),
     ("collapsed right rail maintains anchor", () => ScreenPlacement.WindowLeft(1854, false, true, 0, 1920) == 1854),

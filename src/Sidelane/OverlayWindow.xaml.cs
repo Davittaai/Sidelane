@@ -32,6 +32,7 @@ public partial class OverlayWindow : Window
     private readonly MediaService _media = new();
     private readonly List<CheckBox> _tasks = new();
     private readonly SessionActivityStore _activities = new();
+    private readonly AiStatusServer _ai = new();
     private readonly DispatcherTimer _refresh = new() { Interval = TimeSpan.FromSeconds(4) };
     private readonly DispatcherTimer _focusRefresh = new() { Interval = TimeSpan.FromMilliseconds(1000) };
     private readonly DispatcherTimer _collapseDelay = new() { Interval = TimeSpan.FromMilliseconds(240) };
@@ -51,6 +52,7 @@ public partial class OverlayWindow : Window
     {
         _settings = settings;
         InitializeComponent();
+        _ai.Updated += () => Dispatcher.BeginInvoke(() => { if (!_closing) RebuildApps(); });
         // Restore the rail near its saved monitor before the first HWND is created.
         // Otherwise Windows starts it on the primary monitor and edge snapping
         // can silently discard the saved secondary-monitor position.
@@ -86,6 +88,7 @@ public partial class OverlayWindow : Window
         Height = Math.Max(300, Math.Min(_settings.Current.PanelHeight, GetWorkArea().Height - 24));
         ApplyAppearance();
         SetExpanded(!_settings.Current.StartCollapsed);
+        _ai.Start();
         _refresh.Start();
         _focusRefresh.Start();
         UpdateAlwaysOnTop();
@@ -265,6 +268,7 @@ public partial class OverlayWindow : Window
                 _available = current;
                 RebuildApps();
             }
+            if (_ai.WasUsed) RebuildApps(); // expire short-lived browser signals
             var media = await _media.ReadAsync();
             if (_closing) return;
             SongTitle.Text = media.Title;
@@ -308,12 +312,13 @@ public partial class OverlayWindow : Window
             if (target is not null) visible++;
             var activity = _activities.Get(item.Name);
             var manual = activity.Status.Length > 0 ? ToStatusName(activity.Status) : null;
+            var observed = _ai.Get(item.Name);
             var isFocused = target is not null && WindowService.IsFocused(target.Handle);
-            var state = manual ?? (isFocused ? "In focus" :
+            var state = manual ?? (observed.Length > 0 ? observed : isFocused ? "In focus" :
                 target is not null ? "Open" :
                 LinkPolicy.TryGetWebTarget(item.Url, out _) ? "Open website" : "Not open");
             if (activity.Note.Length > 0) state = activity.Note;
-            var dotColor = manual is not null || activity.Note.Length > 0 || isFocused ? AccentBrush :
+            var dotColor = manual is not null || observed.Length > 0 || activity.Note.Length > 0 || isFocused ? AccentBrush :
                 (target is not null ? new SolidColorBrush(Color.FromRgb(127,135,139)) :
                 new SolidColorBrush(Color.FromRgb(91,96,104)));
 
@@ -481,6 +486,7 @@ public partial class OverlayWindow : Window
     public void DisposeNative()
     {
         _refresh.Stop(); _focusRefresh.Stop(); _collapseDelay.Stop();
+        _ai.Dispose();
         if (_hwnd != IntPtr.Zero) NativeMethods.UnregisterHotKey(_hwnd, NativeMethods.HOTKEY_ID);
         _closing = true;
         Close();

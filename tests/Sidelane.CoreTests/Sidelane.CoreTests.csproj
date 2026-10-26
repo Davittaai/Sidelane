@@ -13,5 +13,7 @@
     <Compile Include="../../src/Sidelane/Services/ImageFilePolicy.cs" Link="ImageFilePolicy.cs"/>
     <Compile Include="../../src/Sidelane/Services/ThemeContrastPolicy.cs" Link="ThemeContrastPolicy.cs"/>
     <Compile Include="../../src/Sidelane/Services/SessionActivityStore.cs" Link="SessionActivityStore.cs"/>
+    <Compile Include="../../src/Sidelane/Services/AiSignalPolicy.cs" Link="AiSignalPolicy.cs"/>
+    <Compile Include="../../src/Sidelane/Services/UpdateService.cs" Link="UpdateService.cs"/>
   </ItemGroup>
 </Project>

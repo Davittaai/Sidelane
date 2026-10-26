@@ -39,6 +39,12 @@ jobs:
         run: dotnet build src/Sidelane/Sidelane.csproj -c Release --no-restore -warnaserror
       - name: Publish self-contained portable Windows binary
         run: dotnet publish src/Sidelane/Sidelane.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o out
+      - name: Publish native browser host
+        shell: pwsh
+        run: |
+          dotnet publish src/Sidelane.NativeHost/Sidelane.NativeHost.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o native-out
+          Copy-Item native-out/Sidelane.NativeHost.exe out/Sidelane.NativeHost.exe
+          if (!(Test-Path out/Sidelane.NativeHost.exe)) { throw 'Native host publish failed' }
       - name: Native Windows process launch smoke test
         shell: pwsh
         run: ./tests/windows_launch_smoke.ps1 -ExePath out/Sidelane.exe
@@ -59,6 +65,7 @@ jobs:
           Copy-Item README-START.txt out/README-START.txt
           Copy-Item LICENSE out/LICENSE
           Copy-Item THIRD_PARTY_NOTICES.md out/THIRD_PARTY_NOTICES.md
+          Copy-Item companion out/companion -Recurse -Force
           Compress-Archive -Path out/* -DestinationPath Sidelane-win-x64.zip
       - name: Build per-user Windows installer
         shell: pwsh

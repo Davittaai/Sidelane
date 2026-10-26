@@ -26,6 +26,8 @@ LicenseFile=LICENSE
 
 [Files]
 Source: "out\Sidelane.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "out\Sidelane.NativeHost.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "out\companion\*"; DestDir: "{app}\companion"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "out\README-START.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "out\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 Source: "out\THIRD_PARTY_NOTICES.md"; DestDir: "{app}"; Flags: ignoreversion

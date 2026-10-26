@@ -6,6 +6,7 @@ using Sidelane.Services;
 // Never write diagnostics to stdout.
 using var input = Console.OpenStandardInput();
 using var output = Console.OpenStandardOutput();
+const string AiStatusServerPipeName = "Sidelane.BrowserState.V1";
 var header = new byte[4];
 while (await ReadFullyAsync(input, header))
 {
@@ -34,8 +35,6 @@ while (await ReadFullyAsync(input, header))
     await output.WriteAsync(response);
     await output.FlushAsync();
 }
-
-const string AiStatusServerPipeName = "Sidelane.BrowserState.V1";
 
 static async Task<bool> ReadFullyAsync(Stream stream, byte[] bytes)
 {

@@ -12,6 +12,7 @@ public sealed class AiStatusServer : IDisposable
     private readonly Dictionary<string, (string State, DateTimeOffset Until)> _states = new();
     private readonly object _gate = new();
     public event Action? Updated;
+    public bool WasUsed { get; private set; }
     private Task? _runner;
 
     public void Start() => _runner ??= Task.Run(ListenAsync);
@@ -31,6 +32,7 @@ public sealed class AiStatusServer : IDisposable
                 if (line is not null && AiSignalPolicy.Parse(line) is { } signal)
                 {
                     lock (_gate) _states[signal.Provider] = (signal.State, DateTimeOffset.UtcNow.AddSeconds(12));
+                    WasUsed = true;
                     Updated?.Invoke();
                 }
             }
