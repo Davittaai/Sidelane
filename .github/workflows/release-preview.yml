@@ -56,6 +56,7 @@ jobs:
           TAG="${HEAD_BRANCH#release/}"
           NOTES_FILE="docs/RELEASE-NOTES-v1.2-beta.md"
           if [[ "$TAG" == v1.3.* ]]; then NOTES_FILE="docs/RELEASE-NOTES-v1.3-beta.md"; fi
+          if [[ "$TAG" == v2.* ]]; then NOTES_FILE="docs/RELEASE-NOTES-v2.md"; fi
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$TAG" dist/Sidelane-win-x64.zip dist/Sidelane-win-x64.sha256 dist/SidelaneSetup.exe dist/SidelaneSetup.sha256 --clobber --repo "$GITHUB_REPOSITORY"
           else
