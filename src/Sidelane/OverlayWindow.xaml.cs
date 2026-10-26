@@ -274,7 +274,7 @@ public partial class OverlayWindow : Window
         // Slash opens a small in-rail filter even for workspaces with only a few apps.
         if ((e.Key == Key.Oem2 || e.Key == Key.Divide) &&
             Keyboard.Modifiers == ModifierKeys.None &&
-            e.OriginalSource is not TextBox &&
+            e.OriginalSource is not System.Windows.Controls.TextBox &&
             e.OriginalSource is not PasswordBox)
         {
             SetExpanded(true);
