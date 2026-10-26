@@ -1,4 +1,6 @@
 using System.Drawing;
+using System.Diagnostics;
+using System.Reflection;
 using System.Threading;
 using System.Windows;
 using Sidelane.Services;
@@ -12,6 +14,8 @@ public partial class App : System.Windows.Application
     private OverlayWindow? _overlay;
     private SettingsService? _settings;
     private bool _settingsOpen;
+    private readonly CancellationTokenSource _updateStop = new();
+    private Uri? _availableUpdate;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -33,6 +37,7 @@ public partial class App : System.Windows.Application
         var menu = new System.Windows.Forms.ContextMenuStrip();
         menu.Items.Add("Show / hide sidebar", null, (_, _) => Dispatcher.Invoke(() => _overlay.ToggleVisibility()));
         menu.Items.Add("Settings", null, (_, _) => Dispatcher.Invoke(ShowSettings));
+        menu.Items.Add("Check for updates", null, (_, _) => Dispatcher.Invoke(async () => await CheckForUpdatesAsync(true)));
         menu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
         menu.Items.Add("Exit Sidelane", null, (_, _) => Dispatcher.Invoke(ExitApp));
         _tray = new System.Windows.Forms.NotifyIcon
@@ -42,6 +47,8 @@ public partial class App : System.Windows.Application
             Visible = true, ContextMenuStrip = menu
         };
         _tray.DoubleClick += (_, _) => Dispatcher.Invoke(() => _overlay.ToggleVisibility());
+        _tray.BalloonTipClicked += (_, _) => { if (_availableUpdate is { } url) OpenUpdatePage(url); };
+        _ = UpdateLoopAsync();
     }
 
     private static System.Drawing.Icon TryGetAppIcon()
@@ -50,6 +57,55 @@ public partial class App : System.Windows.Application
             ? System.Drawing.Icon.ExtractAssociatedIcon(path) ?? SystemIcons.Application
             : SystemIcons.Application; }
         catch (Exception) { return SystemIcons.Application; }
+    }
+
+    private static void OpenUpdatePage(Uri uri)
+    {
+        try { Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true }); }
+        catch (System.ComponentModel.Win32Exception) { }
+    }
+
+    private async Task UpdateLoopAsync()
+    {
+        try
+        {
+            await Task.Delay(TimeSpan.FromSeconds(30), _updateStop.Token);
+            while (!_updateStop.IsCancellationRequested)
+            {
+                await CheckForUpdatesAsync(false);
+                await Task.Delay(TimeSpan.FromHours(24), _updateStop.Token);
+            }
+        }
+        catch (OperationCanceledException) { }
+    }
+
+    private async Task CheckForUpdatesAsync(bool interactive)
+    {
+        try
+        {
+            var current = Assembly.GetExecutingAssembly().GetName().Version ?? new Version(1, 0);
+            var info = await UpdateService.GetNewReleaseAsync(current, _updateStop.Token);
+            if (info is not null)
+            {
+                if (info.Page != _availableUpdate)
+                {
+                    _availableUpdate = info.Page;
+                    _tray?.ShowBalloonTip(7000, "Sidelane update available",
+                        $"Version {info.Version} is ready. Click to view the official release.",
+                        System.Windows.Forms.ToolTipIcon.Info);
+                }
+                else if (interactive) OpenUpdatePage(info.Page);
+            }
+            else if (interactive)
+                System.Windows.MessageBox.Show("You're on the latest stable release.",
+                    "Sidelane updates", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)
+        {
+            if (interactive) System.Windows.MessageBox.Show("Could not check GitHub releases.",
+                "Sidelane updates", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
 
     private void ShowSettings()
@@ -68,6 +124,7 @@ public partial class App : System.Windows.Application
 
     private void ExitApp()
     {
+        _updateStop.Cancel();
         _overlay?.DisposeNative();
         Shutdown();
     }
@@ -77,6 +134,7 @@ public partial class App : System.Windows.Application
         if (_tray is not null) { _tray.Visible = false; _tray.Dispose(); }
         try { _mutex?.ReleaseMutex(); } catch (ApplicationException) { }
         _mutex?.Dispose();
+        _updateStop.Dispose();
         base.OnExit(e);
     }
 }
