@@ -149,6 +149,10 @@
         <CheckBox x:Name="StartCollapsedInput" Content="Start as a narrow strip"/>
         <CheckBox x:Name="ShowTaskbarInput" Content="Show Sidelane on the taskbar"/>
         <CheckBox x:Name="AnimationsInput" Content="Enable subtle motion animations"/>
+        <TextBlock Text="Global show shortcut" Style="{StaticResource FieldLabel}"/>
+        <ComboBox x:Name="HotkeyCombo" Margin="0,0,0,16" ToolTip="Choose a shortcut that is not used by another Windows app.">
+          <ComboBoxItem Content="Ctrl+Alt+Space"/><ComboBoxItem Content="Ctrl+Shift+Space"/><ComboBoxItem Content="Disabled"/>
+        </ComboBox>
         <CheckBox x:Name="LockPositionInput" Content="Lock position" Margin="0,0,0,18"/>
         <Rectangle Height="1" Fill="{StaticResource Line}" Margin="0,0,0,21"/>
         <TextBlock Text="Backup and restore" Style="{StaticResource SectionLabel}" Margin="0,0,0,6"/>

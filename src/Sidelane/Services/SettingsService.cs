@@ -9,6 +9,7 @@ public sealed class SettingsService
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
     public string DirectoryPath { get; }
+    public bool IsFreshProfile { get; }
     private string FilePath => Path.Combine(DirectoryPath, "settings.json");
     public AppSettings Current { get; private set; } = new();
 
@@ -16,6 +17,7 @@ public sealed class SettingsService
     {
         DirectoryPath = directoryPath ?? Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Sidelane");
+        IsFreshProfile = !File.Exists(FilePath);
         Load();
     }
 
@@ -103,6 +105,7 @@ public sealed class SettingsService
     private static void Normalize(AppSettings settings)
     {
         settings.Shortcuts ??= ShortcutSettings.Defaults();
+        settings.Hotkey = HotkeyPolicy.Normalize(settings.Hotkey);
         settings.Edge = settings.Edge is "Left" or "Right" or "Free" ? settings.Edge : "Left";
         if (settings.Edge == "Right") settings.RailOnRight = true;
         else if (settings.Edge == "Left") settings.RailOnRight = false;

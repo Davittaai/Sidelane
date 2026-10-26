@@ -11,6 +11,7 @@ public sealed class AppSettings
     public bool StartCollapsed { get; set; } = true;
     public bool ShowTaskbarButton { get; set; } = true;
     public bool EnableAnimations { get; set; } = true;
+    public string Hotkey { get; set; } = "Ctrl+Alt+Space";
     public string Edge { get; set; } = "Left";
     // Remembers which side of the panel holds the rail when dragged to a free position.
     public bool RailOnRight { get; set; }

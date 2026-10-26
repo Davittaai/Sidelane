@@ -58,6 +58,82 @@ var cases = new List<(string Name, Func<bool> Run)>
         try { new SettingsService(root).Import(file); return false; }
         catch (InvalidDataException) { return true; }
     })),
+    ("wizard honors a chosen Firefox browser rather than an arbitrary existing tab", () =>
+    {
+        var configured = WorkspaceSetupPolicy.Configure(new AppSettings(), ["ChatGPT", "Claude"],
+            "Firefox", false, new Dictionary<string,string>(), "#9BC9E2", "#17212D", true);
+        return configured.Shortcuts.Count == 2 &&
+            configured.Shortcuts.All(x => x.LaunchMode == "Browser" && x.Browser == "Firefox") &&
+            configured.Accent == "#9BC9E2" && configured.Background == "#17212D";
+    }),
+    ("wizard does not create a broken VS Code launch without local shortcut", () =>
+    {
+        var configured = WorkspaceSetupPolicy.Configure(new AppSettings(), ["VS Code", "ChatGPT"],
+            "Default", true, new Dictionary<string,string>(), "#B9D8BF", "#191C20", true);
+        return configured.Shortcuts.Count == 1 && configured.Shortcuts[0].Name == "ChatGPT";
+    }),
+    ("wizard uses opted-in local shortcut rather than web target", () => InSandbox(root =>
+    {
+        var shortcut = Path.Combine(root, "ChatGPT.lnk");
+        File.WriteAllText(shortcut, "dummy");
+        var found = new Dictionary<string,string> { ["ChatGPT"] = shortcut };
+        var configured = WorkspaceSetupPolicy.Configure(new AppSettings(), ["ChatGPT"],
+            "Chrome", true, found, "#B9D8BF", "#191C20", false);
+        return configured.Shortcuts.Single().LaunchMode == "App" &&
+            configured.Shortcuts.Single().AppPath == shortcut &&
+            !configured.ShowTaskbarButton;
+    })),
+    ("wizard falls back safely when browser option is invalid", () =>
+    {
+        var configured = WorkspaceSetupPolicy.Configure(new AppSettings(), ["Grok"],
+            "Unsupported", false, new Dictionary<string,string>(), "#FFFFFF", "#FFFFFF", true);
+        return configured.Shortcuts.Single().Browser == "Default" &&
+            configured.Background == "#191C20";
+    }),
+    ("new local install opens setup only before profile is saved", () => InSandbox(root =>
+    {
+        var initial = new SettingsService(root);
+        if (!initial.IsFreshProfile) return false;
+        initial.Save();
+        return !new SettingsService(root).IsFreshProfile;
+    })),
+    ("existing v1 profile does not force wizard", () => InSandbox(root =>
+    {
+        File.WriteAllText(Path.Combine(root, "settings.json"),
+            "{\"Background\":\"#17212D\",\"Shortcuts\":[]}");
+        var existing = new SettingsService(root);
+        return !existing.IsFreshProfile && existing.Current.Background == "#17212D";
+    })),
+    ("global shortcuts validate and can be disabled", () =>
+        HotkeyPolicy.Normalize("Ctrl+Shift+Space") == "Ctrl+Shift+Space" &&
+        HotkeyPolicy.TryGet("Ctrl+Shift+Space", out var mod, out var key) &&
+        mod != 0 && key == 0x20 &&
+        !HotkeyPolicy.TryGet("Disabled", out _, out _) &&
+        HotkeyPolicy.Normalize("Win+R") == "Ctrl+Alt+Space"),
+    ("global shortcut preference persists and normalizes", () => InSandbox(root =>
+    {
+        var settings = new SettingsService(root);
+        settings.Current.Hotkey = "Ctrl+Shift+Space";
+        settings.Save();
+        var again = new SettingsService(root);
+        if (again.Current.Hotkey != "Ctrl+Shift+Space") return false;
+        again.Current.Hotkey = "invalid";
+        again.Save();
+        return new SettingsService(root).Current.Hotkey == "Ctrl+Alt+Space";
+    })),
+    ("local discovery matches exact Start Menu shortcut names", () => InSandbox(root =>
+    {
+        var subfolder = Path.Combine(root, "Applications");
+        Directory.CreateDirectory(subfolder);
+        var intended = Path.Combine(subfolder, "Visual Studio Code.lnk");
+        File.WriteAllText(intended, "dummy");
+        File.WriteAllText(Path.Combine(subfolder, "Not ChatGPT Official.lnk"), "dummy");
+        return LocalAppDiscovery.Find("VS Code", [root]) == intended &&
+               LocalAppDiscovery.Find("ChatGPT", [root]) is null;
+    })),
+    ("missing app discovery roots are harmless", () =>
+        LocalAppDiscovery.Find("ChatGPT", [@"C:\SidelaneMissingFolder12345"]) is null &&
+        LocalAppDiscovery.Find("UntrustedName", []) is null),
     ("native app mode accepts only existing files", () =>
         LaunchPolicy.Create(new ShortcutSettings { LaunchMode="App", AppPath=@"C:\does-not-exist-sidelane.exe" },
             _ => null) is null),

@@ -28,6 +28,6 @@ internal static class NativeMethods
     [DllImport("user32.dll")] public static extern bool UnregisterHotKey(IntPtr hwnd, int id);
     public const int GWL_EXSTYLE=-20, GW_OWNER=4, WS_EX_TOOLWINDOW=0x80, WS_EX_APPWINDOW=0x40000;
     public const int WS_EX_NOACTIVATE=0x08000000, DWMWA_CLOAKED=14, SW_RESTORE=9, SW_SHOW=5;
-    public const uint MOD_ALT=1, MOD_CONTROL=2, MOD_NOREPEAT=0x4000, VK_SPACE=0x20, WM_HOTKEY=0x312;
+    public const uint MOD_ALT=1, MOD_CONTROL=2, MOD_SHIFT=4, MOD_NOREPEAT=0x4000, VK_SPACE=0x20, WM_HOTKEY=0x312;
     public const int HOTKEY_ID=4217;
 }

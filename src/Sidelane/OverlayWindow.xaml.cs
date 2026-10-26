@@ -38,6 +38,9 @@ public partial class OverlayWindow : Window
     private readonly DispatcherTimer _focusRefresh = new() { Interval = TimeSpan.FromMilliseconds(1000) };
     private readonly DispatcherTimer _collapseDelay = new() { Interval = TimeSpan.FromMilliseconds(240) };
     private IntPtr _hwnd;
+    private bool _hotkeyRegistered;
+    private string _currentHotkey = "";
+    public string? HotkeyWarning { get; private set; }
     private bool _expanded;
     private bool _closing;
     private bool _refreshing;
@@ -82,9 +85,7 @@ public partial class OverlayWindow : Window
         _hwnd = new WindowInteropHelper(this).Handle;
         _windows.OwnHandle = _hwnd;
         HwndSource.FromHwnd(_hwnd)?.AddHook(WndProc);
-        NativeMethods.RegisterHotKey(_hwnd, NativeMethods.HOTKEY_ID,
-            NativeMethods.MOD_ALT | NativeMethods.MOD_CONTROL | NativeMethods.MOD_NOREPEAT,
-            NativeMethods.VK_SPACE);
+        RebindHotkey();
         // Do not relocate a saved secondary-monitor position back to the primary screen.
         Height = Math.Max(300, Math.Min(_settings.Current.PanelHeight, GetWorkArea().Height - 24));
         ApplyAppearance();
@@ -100,6 +101,45 @@ public partial class OverlayWindow : Window
 
     // Only change Z-order when fullscreen state changes. Continuous SetWindowPos
     // requests would steal attention from other desktop workflows.
+    private void RebindHotkey()
+    {
+        var requested = HotkeyPolicy.Normalize(_settings.Current.Hotkey);
+        if (requested == _currentHotkey && (_hotkeyRegistered || requested == "Disabled")) return;
+        var previous = _currentHotkey;
+        var hadPrevious = _hotkeyRegistered;
+        if (hadPrevious)
+        {
+            NativeMethods.UnregisterHotKey(_hwnd, NativeMethods.HOTKEY_ID);
+            _hotkeyRegistered = false;
+        }
+        HotkeyWarning = null;
+        if (!HotkeyPolicy.TryGet(requested, out var modifiers, out var key))
+        {
+            _currentHotkey = requested;
+            return;
+        }
+        if (NativeMethods.RegisterHotKey(_hwnd, NativeMethods.HOTKEY_ID, modifiers, key))
+        {
+            _hotkeyRegistered = true;
+            _currentHotkey = requested;
+            return;
+        }
+        HotkeyWarning = requested + " is reserved by another Windows application.";
+        if (hadPrevious && HotkeyPolicy.TryGet(previous, out var oldMods, out var oldKey) &&
+            NativeMethods.RegisterHotKey(_hwnd, NativeMethods.HOTKEY_ID, oldMods, oldKey))
+        {
+            _hotkeyRegistered = true;
+            _currentHotkey = previous;
+            HotkeyWarning += " The previous shortcut is still active. Pick another in Preferences.";
+        }
+        else
+        {
+            _currentHotkey = "";
+            HotkeyWarning += " Use Preferences or the tray to choose a different shortcut.";
+        }
+        LogoButton.ToolTip = HotkeyWarning;
+    }
+
     private void UpdateAlwaysOnTop()
     {
         if (_hwnd == IntPtr.Zero || !IsVisible) return;
@@ -141,7 +181,9 @@ public partial class OverlayWindow : Window
     {
         var s = _settings.Current;
         FontFamily = new FontFamily(s.Font);
-        SearchBoxRow.Visibility = s.Shortcuts.Count > 6 ? Visibility.Visible : Visibility.Collapsed;
+        if (_hwnd != IntPtr.Zero) RebindHotkey();
+        SearchBoxRow.Visibility = s.Shortcuts.Count > 6 || SearchApps.IsKeyboardFocusWithin || SearchApps.Text.Length > 0
+            ? Visibility.Visible : Visibility.Collapsed;
         ShowInTaskbar = s.ShowTaskbarButton;
         // Opacity applies to surfaces, not labels: keep text and icons legible.
         Surface.Opacity = 1;
@@ -153,7 +195,11 @@ public partial class OverlayWindow : Window
             ThemePalettePolicy.Divider(s.Background)));
         RailArea.BorderBrush = divider;
         Surface.BorderBrush = divider;
+        MediaCard.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(
+            ThemePalettePolicy.Blend(s.Background, "#FFFFFF", .075)));
+        MediaCard.BorderBrush = divider;
         LoadingBar.Foreground = AccentBrush;
+        TopAccentLine.Fill = AccentBrush;
         var wallpaper = BackgroundImagePolicy.TryCreateBrush(s.BackgroundImage);
         // Optional wallpaper should never compete with content readability.
         if (wallpaper is not null) wallpaper.Opacity = 0.13;
@@ -242,7 +288,38 @@ public partial class OverlayWindow : Window
 
     private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
     {
-        if (e.Key == Key.Escape) { SetExpanded(false); e.Handled = true; }
+        // Slash opens a small in-rail filter even for workspaces with only a few apps.
+        if ((e.Key == Key.Oem2 || e.Key == Key.Divide) &&
+            Keyboard.Modifiers == ModifierKeys.None &&
+            e.OriginalSource is not System.Windows.Controls.TextBox &&
+            e.OriginalSource is not PasswordBox)
+        {
+            SetExpanded(true);
+            SearchBoxRow.Visibility = Visibility.Visible;
+            SearchApps.Focus();
+            e.Handled = true;
+            return;
+        }
+        if (e.Key != Key.Escape) return;
+        if (SearchApps.IsKeyboardFocusWithin && SearchApps.Text.Length > 0)
+        {
+            SearchApps.Clear();
+            e.Handled = true;
+            return;
+        }
+        SetExpanded(false);
+        e.Handled = true;
+    }
+
+    private void SearchApps_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter) return;
+        // Activate the first visible matching shortcut without requiring a mouse.
+        if (AppRows.Items.Count == 0 || AppRows.Items[0] is not Grid row) return;
+        var first = row.Children.OfType<Button>().FirstOrDefault();
+        if (first is null) return;
+        first.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        e.Handled = true;
     }
 
     private void Logo_Click(object sender, RoutedEventArgs e) => SetExpanded(!_expanded);
@@ -593,7 +670,7 @@ public partial class OverlayWindow : Window
     {
         _refresh.Stop(); _focusRefresh.Stop(); _collapseDelay.Stop();
         _ai.Dispose();
-        if (_hwnd != IntPtr.Zero) NativeMethods.UnregisterHotKey(_hwnd, NativeMethods.HOTKEY_ID);
+        if (_hwnd != IntPtr.Zero && _hotkeyRegistered) NativeMethods.UnregisterHotKey(_hwnd, NativeMethods.HOTKEY_ID);
         _closing = true;
         Close();
     }

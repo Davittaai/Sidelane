@@ -17,6 +17,9 @@
     <Compile Include="../../src/Sidelane/Services/AiSignalPolicy.cs" Link="AiSignalPolicy.cs"/>
     <Compile Include="../../src/Sidelane/Services/UpdateService.cs" Link="UpdateService.cs"/>
     <Compile Include="../../src/Sidelane/Services/LaunchPolicy.cs" Link="LaunchPolicy.cs"/>
+    <Compile Include="../../src/Sidelane/Services/HotkeyPolicy.cs" Link="HotkeyPolicy.cs"/>
+    <Compile Include="../../src/Sidelane/Services/LocalAppDiscovery.cs" Link="LocalAppDiscovery.cs"/>
+    <Compile Include="../../src/Sidelane/Services/WorkspaceSetupPolicy.cs" Link="WorkspaceSetupPolicy.cs"/>
     <Compile Include="../../src/Sidelane/Services/AiProviderPolicy.cs" Link="AiProviderPolicy.cs"/>
   </ItemGroup>
 </Project>
