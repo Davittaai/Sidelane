@@ -13,6 +13,43 @@ var cases = new List<(string Name, Func<bool> Run)>
         AiProviderPolicy.Resolve(new ShortcutSettings { Name = "ChatGPT", StatusProvider = "None" }) == ""),
     ("user can link a native app to AI provider", () =>
         AiProviderPolicy.Resolve(new ShortcutSettings { Name = "My desktop AI", StatusProvider = "Claude" }) == "Claude"),
+    ("browser launch uses argument tokens and not a command shell", () => InSandbox(root =>
+    {
+        var chrome = Path.Combine(root, "chrome.exe");
+        File.WriteAllText(chrome, "dummy");
+        var shortcut = new ShortcutSettings { LaunchMode = "Browser", Browser = "Chrome",
+            BrowserAppWindow = true, Url = "https://chatgpt.com/?q=a%20b" };
+        var plan = LaunchPolicy.Create(shortcut, _ => chrome);
+        return plan is { UseShellExecute: false } &&
+            plan.ArgumentList.Count == 1 &&
+            plan.ArgumentList[0].StartsWith("--app=https://chatgpt.com/", StringComparison.Ordinal);
+    })),
+    ("app mode respects explicit installed shortcut", () => InSandbox(root =>
+    {
+        var target = Path.Combine(root, "ChatGPT.lnk");
+        File.WriteAllText(target, "test");
+        var plan = LaunchPolicy.Create(new ShortcutSettings { LaunchMode="App", AppPath=target }, _ => null);
+        return plan is { UseShellExecute: true } && plan.FileName == target;
+    })),
+    ("launch choices persist without task content", () => InSandbox(root =>
+    {
+        var prefs = new SettingsService(root);
+        prefs.Current.Shortcuts = new List<ShortcutSettings> {
+            new() { Name="Personal AI", Url="https://claude.ai", LaunchMode="Browser",
+                Browser="Firefox", StatusProvider="Claude" }
+        };
+        prefs.Save();
+        var loaded = new SettingsService(root).Current.Shortcuts.Single();
+        return loaded.LaunchMode=="Browser" && loaded.Browser=="Firefox" &&
+            loaded.StatusProvider=="Claude";
+    })),
+    ("bad browser or provider values normalize safely", () => InSandbox(root =>
+    {
+        File.WriteAllText(Path.Combine(root, "settings.json"),
+            "{\"Shortcuts\":[{\"Name\":\"AI\",\"Browser\":\"Unknown\",\"StatusProvider\":\"Malicious\",\"LaunchMode\":\"cmd.exe\"}]}");
+        var shortcut = new SettingsService(root).Current.Shortcuts.Single();
+        return shortcut.Browser=="Default" && shortcut.StatusProvider=="Auto" && shortcut.LaunchMode=="Auto";
+    })),
     ("browser is explicitly selectable", () => LaunchPolicy.IsValidBrowser("Firefox") && !LaunchPolicy.IsValidBrowser("curl")),
     ("launch mode is validated", () => LaunchPolicy.IsValidMode("App") && !LaunchPolicy.IsValidMode("Powershell")),
     ("default web opens with operating system handler", () =>
