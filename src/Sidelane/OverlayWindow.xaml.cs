@@ -347,7 +347,14 @@ public partial class OverlayWindow : Window
         var filter = SearchApps?.Text.Trim() ?? "";
         foreach (var item in _settings.Current.Shortcuts)
         {
-            var target = _available.FirstOrDefault(w => WindowService.Matches(w, item.Match));
+            // App mode must never mistake a browser tab title for the native app.
+            // For a .lnk target the real process cannot be safely inferred without resolving the link.
+            var target = item.LaunchMode == "App"
+                ? (item.AppPath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+                    ? _available.FirstOrDefault(w => w.Process.Equals(
+                        System.IO.Path.GetFileNameWithoutExtension(item.AppPath), StringComparison.OrdinalIgnoreCase))
+                    : null)
+                : _available.FirstOrDefault(w => WindowService.Matches(w, item.Match));
             // Count installed apps and observed browser tabs without inventing state.
             var activity = _activities.Get(item.Name);
             var manual = activity.Status.Length > 0 ? ToStatusName(activity.Status) : null;
@@ -477,7 +484,7 @@ public partial class OverlayWindow : Window
             }
         }
         AppsCount.Text = $"{visible} open";
-        StatusSummary.Text = _settings.Current.Shortcuts.Count + " shortcuts · " + _settings.Current.Shortcuts.Count(i => _ai.Get(AiProviderPolicy.Resolve(i)).StartsWith("Generating", StringComparison.Ordinal)) + " working";
+        StatusSummary.Text = _settings.Current.Shortcuts.Count + " shortcuts · " + _settings.Current.Shortcuts.Count(i => _activities.Get(i.Name).Status == "working" || _ai.Get(AiProviderPolicy.Resolve(i)).StartsWith("Generating", StringComparison.Ordinal)) + " working";
     }
 
     private static string BuildShortcutTooltip(string appName, string state, string? windowTitle, string? manualStatus)
@@ -502,7 +509,7 @@ public partial class OverlayWindow : Window
 
     private void ActivateShortcut(ShortcutSettings shortcut)
     {
-        if (shortcut.LaunchMode is "Auto" or "App")
+        if (shortcut.LaunchMode == "Auto")
         {
             var existing = _available.FirstOrDefault(w => WindowService.Matches(w, shortcut.Match));
             if (existing is not null) { WindowService.Focus(existing.Handle); return; }
