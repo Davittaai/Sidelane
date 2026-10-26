@@ -58,7 +58,7 @@
      <TextBlock Text="No account. No cloud sync. You control your shortcuts." Foreground="#93A49C" FontSize="10" TextWrapping="Wrap"/>
     </StackPanel>
     <Button Grid.Column="1" Content="Use defaults" Margin="0,0,10,0" Click="Skip_Click"/>
-    <Button Grid.Column="2" Content="Create my workspace" Background="#B9D8BF" Foreground="#15261B" BorderBrush="#B9D8BF" FontWeight="SemiBold" Click="Finish_Click"/>
+    <Button x:Name="FinishButton" IsEnabled="False" Grid.Column="2" Content="Create my workspace" Background="#B9D8BF" Foreground="#15261B" BorderBrush="#B9D8BF" FontWeight="SemiBold" Click="Finish_Click"/>
    </Grid>
   </Border>
   <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">

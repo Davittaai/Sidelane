@@ -43,10 +43,14 @@ public partial class SetupWindow : Window
             foreach (var browser in browsers) BrowserChoice.Items.Add(new ComboBoxItem { Content = browser });
             BrowserInfo.Text = browsers.Count + " browser" + (browsers.Count == 1 ? "" : "s") + " detected";
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
         {
             InstalledInfo.Text = "App discovery unavailable. Browser shortcuts will still work.";
             BrowserInfo.Text = "System default";
+        }
+        finally
+        {
+            FinishButton.IsEnabled = true;
         }
     }
 
