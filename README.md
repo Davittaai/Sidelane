@@ -4,9 +4,9 @@ A compact, customizable **Windows workspace rail** for your AI tools, desktop ap
 
 <p><img src="docs/sidelane-app-icon.png" alt="Sidelane app icon" width="82" /></p>
 
-**[Get v1.3 Beta 1 installer](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.1/SidelaneSetup.exe)** · **[Portable ZIP](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.1/Sidelane-win-x64.zip)** · [Release notes](docs/RELEASE-NOTES-v1.3-beta.md) · [Installer SHA256](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.1/SidelaneSetup.sha256)
+**[Get v1.3 Beta 2 installer](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.2/SidelaneSetup.exe)** · **[Portable ZIP](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.2/Sidelane-win-x64.zip)** · [Release notes](docs/RELEASE-NOTES-v1.3-beta.md) · [Installer SHA256](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.2/SidelaneSetup.sha256)
 
-**Stable version:** [v1.0.0](https://github.com/Davittaai/Sidelane/releases/tag/v1.0.0). **Latest beta:** [v1.3.0-beta.1](https://github.com/Davittaai/Sidelane/releases/tag/v1.3.0-beta.1). The latest beta is a real downloadable Windows build, not a browser mockup. It still requires real-device QA before stable promotion.
+**Stable version:** [v1.0.0](https://github.com/Davittaai/Sidelane/releases/tag/v1.0.0). **Latest beta:** [v1.3.0-beta.2](https://github.com/Davittaai/Sidelane/releases/tag/v1.3.0-beta.2). The latest beta is a real downloadable Windows build, not a browser mockup. It still requires real-device QA before stable promotion.
 
 ## Native Windows screenshots
 
@@ -14,10 +14,18 @@ A compact, customizable **Windows workspace rail** for your AI tools, desktop ap
 
 *Real WPF screenshots captured on a hosted Windows runner, not concept renders. Live AI services, browser selection and mixed-DPI user environments need separate device testing.*
 
+## Beta 2 maintenance improvements
+
+- **Reliable launch fallback:** Auto mode opens the saved website when the selected desktop app is missing. Explicit App mode still never opens a browser without permission.
+- **Whole-rail personalization:** custom dark backgrounds now color the rail, dividers and loading indicator consistently.
+- **Backup & restore:** import/export your saved settings locally in Preferences. An invalid backup cannot overwrite working preferences; temporary tasks and notes are not exported.
+- **Start Menu app picking:** browse installed program shortcuts more easily.
+- **[Next feature backlog](docs/M7-UPDATE-BACKLOG.md):** first-run wizard, hotkey conflict handling, connection clarity and accessibility checks, deliberately separate from the stable release gate.
+
 ## Features
 
 - **Your size:** the collapsed rail starts at 46 display-independent pixels; the expanded view is 320 wide and 560 high. Change each dimension in Preferences, and position it left, right or freely.
-- **Your colors:** coordinated Sage, Slate, Sand and Iris palettes, custom Windows color pickers, dark-surface contrast protection, opacity, local wallpaper and font choices.
+- **Your colors:** coordinated Sage, Slate, Sand and Iris palettes, custom Windows color pickers, dark-surface contrast protection, opacity, local wallpaper and font choices. Saved preferences can also be exported/imported without storing temporary task contents.
 - **Your apps or browser:** select **Auto** (focus a matching window first), **App** (launch the chosen `.exe` or Windows `.lnk` shortcut, including Store-app shortcuts), or **Browser** (default, Chrome, Edge, Firefox or Brave). Chromium browsers can open a standalone web-app window. The App option will not silently open the website.
 - **Visibility and status:** an open native app can be detected from its process. The optional Chrome companion can observe open, generating and recently stopped states for ChatGPT, Claude and Grok, when supported by their current UI. Status is based on site controls; **Sidelane cannot automatically read or name your tasks**.
 - **Your task labels:** use the pencil button beside an app to attach a manual, temporary description of what you're working on. Manual labels and disposable scratchpad tasks are held in memory only and clear at exit.
@@ -27,8 +35,8 @@ A compact, customizable **Windows workspace rail** for your AI tools, desktop ap
 
 ## Install
 
-1. Download [SidelaneSetup.exe](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.1/SidelaneSetup.exe), or use the [portable ZIP](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.1/Sidelane-win-x64.zip) without installation.
-2. The self-contained Windows x64 app does **not** require installing the .NET SDK. The binary is **unsigned**, so SmartScreen may warn. Verify its [SHA256](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.1/SidelaneSetup.sha256) and use files only from the official repository.
+1. Download [SidelaneSetup.exe](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.2/SidelaneSetup.exe), or use the [portable ZIP](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.2/Sidelane-win-x64.zip) without installation.
+2. The self-contained Windows x64 app does **not** require installing the .NET SDK. The binary is **unsigned**, so SmartScreen may warn. Verify its [SHA256](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.2/SidelaneSetup.sha256) and use files only from the official repository.
 3. Open **Preferences → Apps**. Choose the shortcut, launch mode, selected browser or installed application file, and optionally the activity provider. Choose **Appearance** and **Layout** to personalize the rail.
 4. Press **Ctrl+Alt+Space** to show the overlay; hover to expand; use the pencil by an AI app to describe a task without saving its content.
 
@@ -43,7 +51,7 @@ dotnet publish src/Sidelane/Sidelane.csproj -c Release -r win-x64 --self-contain
 
 Or run `Build-Sidelane.cmd` on Windows with the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0).
 
-The v1.3 beta engineering suite passed **73/73 core tests**, warning-as-error WPF compilation, native process launch, local native-messaging protocol checks, and installer install/uninstall checks: [Windows CI evidence](https://github.com/Davittaai/Sidelane/actions/runs/40297630824). Those checks do not validate real live Chrome service markup, hotkey conflicts, mixed monitor/DPI setups or the user's Spotify sessions. Track outstanding acceptance in [Windows QA](docs/WINDOWS-QA.md), [UX review](docs/UX-REVIEW-v1.3.md), and [Issues](https://github.com/Davittaai/Sidelane/issues).
+The v1.3 beta engineering suite passed **81/81 core tests**, warning-as-error WPF compilation, native process launch, local native-messaging protocol checks, and installer install/uninstall checks: [Windows CI evidence](https://github.com/Davittaai/Sidelane/actions/runs/40318407221). Those checks do not validate real live Chrome service markup, hotkey conflicts, mixed monitor/DPI setups or the user's Spotify sessions. Track outstanding acceptance in [Windows QA](docs/WINDOWS-QA.md), [UX review](docs/UX-REVIEW-v1.3.md), and [Issues](https://github.com/Davittaai/Sidelane/issues).
 
 ## Architecture, privacy and credits
 
