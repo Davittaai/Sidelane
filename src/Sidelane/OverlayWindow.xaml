@@ -138,6 +138,9 @@
           </Grid>
         </Border>
       </Grid>
+      <Rectangle x:Name="TopAccentLine" Grid.ColumnSpan="2" Height="2"
+                 Fill="#B9D8BF" Opacity="0.72" VerticalAlignment="Top"
+                 IsHitTestVisible="False" Panel.ZIndex="10"/>
     </Grid>
   </Border>
 </Window>

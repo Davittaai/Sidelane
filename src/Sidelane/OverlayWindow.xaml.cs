@@ -103,25 +103,41 @@ public partial class OverlayWindow : Window
     // requests would steal attention from other desktop workflows.
     private void RebindHotkey()
     {
-        var choice = HotkeyPolicy.Normalize(_settings.Current.Hotkey);
-        if (choice == _currentHotkey && (_hotkeyRegistered || choice == "Disabled")) return;
-        if (_hotkeyRegistered)
+        var requested = HotkeyPolicy.Normalize(_settings.Current.Hotkey);
+        if (requested == _currentHotkey && (_hotkeyRegistered || requested == "Disabled")) return;
+        var previous = _currentHotkey;
+        var hadPrevious = _hotkeyRegistered;
+        if (hadPrevious)
         {
             NativeMethods.UnregisterHotKey(_hwnd, NativeMethods.HOTKEY_ID);
             _hotkeyRegistered = false;
         }
-        _currentHotkey = choice;
         HotkeyWarning = null;
-        if (HotkeyPolicy.TryGet(choice, out var modifiers, out var key))
+        if (!HotkeyPolicy.TryGet(requested, out var modifiers, out var key))
         {
-            _hotkeyRegistered = NativeMethods.RegisterHotKey(_hwnd, NativeMethods.HOTKEY_ID,
-                modifiers, key);
-            if (!_hotkeyRegistered)
-            {
-                HotkeyWarning = choice + " is already reserved by another app. Choose a different shortcut in Preferences.";
-                LogoButton.ToolTip = HotkeyWarning;
-            }
+            _currentHotkey = requested;
+            return;
         }
+        if (NativeMethods.RegisterHotKey(_hwnd, NativeMethods.HOTKEY_ID, modifiers, key))
+        {
+            _hotkeyRegistered = true;
+            _currentHotkey = requested;
+            return;
+        }
+        HotkeyWarning = requested + " is reserved by another Windows application.";
+        if (hadPrevious && HotkeyPolicy.TryGet(previous, out var oldMods, out var oldKey) &&
+            NativeMethods.RegisterHotKey(_hwnd, NativeMethods.HOTKEY_ID, oldMods, oldKey))
+        {
+            _hotkeyRegistered = true;
+            _currentHotkey = previous;
+            HotkeyWarning += " The previous shortcut is still active. Pick another in Preferences.";
+        }
+        else
+        {
+            _currentHotkey = "";
+            HotkeyWarning += " Use Preferences or the tray to choose a different shortcut.";
+        }
+        LogoButton.ToolTip = HotkeyWarning;
     }
 
     private void UpdateAlwaysOnTop()
@@ -183,6 +199,7 @@ public partial class OverlayWindow : Window
             ThemePalettePolicy.Blend(s.Background, "#FFFFFF", .075)));
         MediaCard.BorderBrush = divider;
         LoadingBar.Foreground = AccentBrush;
+        TopAccentLine.Fill = AccentBrush;
         var wallpaper = BackgroundImagePolicy.TryCreateBrush(s.BackgroundImage);
         // Optional wallpaper should never compete with content readability.
         if (wallpaper is not null) wallpaper.Opacity = 0.13;
