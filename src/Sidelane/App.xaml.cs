@@ -127,13 +127,13 @@ public partial class App : System.Windows.Application
 
             }
             else if (interactive)
-                System.Windows.System.Windows.MessageBox.Show("You're on the latest stable release.",
+                System.Windows.MessageBox.Show("You're on the latest stable release.",
                     "Sidelane updates", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (OperationCanceledException) { }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)
         {
-            if (interactive) System.Windows.System.Windows.MessageBox.Show("Could not check GitHub releases.",
+            if (interactive) System.Windows.MessageBox.Show("Could not check GitHub releases.",
                 "Sidelane updates", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
