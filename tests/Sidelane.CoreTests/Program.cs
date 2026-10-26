@@ -4,11 +4,76 @@ using Sidelane.Services;
 
 var cases = new List<(string Name, Func<bool> Run)>
 {
+    ("native app mode accepts only existing files", () =>
+        LaunchPolicy.Create(new ShortcutSettings { LaunchMode="App", AppPath=@"C:\does-not-exist-sidelane.exe" },
+            _ => null) is null),
+    ("renamed ChatGPT shortcut still resolves provider by website", () =>
+        AiProviderPolicy.Resolve(new ShortcutSettings { Name = "Research tool", Url = "https://chatgpt.com" }) == "ChatGPT"),
+    ("user can explicitly disable observed activity", () =>
+        AiProviderPolicy.Resolve(new ShortcutSettings { Name = "ChatGPT", StatusProvider = "None" }) == ""),
+    ("user can link a native app to AI provider", () =>
+        AiProviderPolicy.Resolve(new ShortcutSettings { Name = "My desktop AI", StatusProvider = "Claude" }) == "Claude"),
+    ("browser launch uses argument tokens and not a command shell", () => InSandbox(root =>
+    {
+        var chrome = Path.Combine(root, "chrome.exe");
+        File.WriteAllText(chrome, "dummy");
+        var shortcut = new ShortcutSettings { LaunchMode = "Browser", Browser = "Chrome",
+            BrowserAppWindow = true, Url = "https://chatgpt.com/?q=a%20b" };
+        var plan = LaunchPolicy.Create(shortcut, _ => chrome);
+        return plan is { UseShellExecute: false } &&
+            plan.ArgumentList.Count == 1 &&
+            plan.ArgumentList[0].StartsWith("--app=https://chatgpt.com/", StringComparison.Ordinal);
+    })),
+    ("app mode respects explicit installed shortcut", () => InSandbox(root =>
+    {
+        var target = Path.Combine(root, "ChatGPT.lnk");
+        File.WriteAllText(target, "test");
+        var plan = LaunchPolicy.Create(new ShortcutSettings { LaunchMode="App", AppPath=target }, _ => null);
+        return plan is { UseShellExecute: true } && plan.FileName == target;
+    })),
+    ("launch choices persist without task content", () => InSandbox(root =>
+    {
+        var prefs = new SettingsService(root);
+        prefs.Current.Shortcuts = new List<ShortcutSettings> {
+            new() { Name="Personal AI", Url="https://claude.ai", LaunchMode="Browser",
+                Browser="Firefox", StatusProvider="Claude" }
+        };
+        prefs.Save();
+        var loaded = new SettingsService(root).Current.Shortcuts.Single();
+        return loaded.LaunchMode=="Browser" && loaded.Browser=="Firefox" &&
+            loaded.StatusProvider=="Claude";
+    })),
+    ("bad browser or provider values normalize safely", () => InSandbox(root =>
+    {
+        File.WriteAllText(Path.Combine(root, "settings.json"),
+            "{\"Shortcuts\":[{\"Name\":\"AI\",\"Browser\":\"Unknown\",\"StatusProvider\":\"Malicious\",\"LaunchMode\":\"cmd.exe\"}]}");
+        var shortcut = new SettingsService(root).Current.Shortcuts.Single();
+        return shortcut.Browser=="Default" && shortcut.StatusProvider=="Auto" && shortcut.LaunchMode=="Auto";
+    })),
+    ("browser is explicitly selectable", () => LaunchPolicy.IsValidBrowser("Firefox") && !LaunchPolicy.IsValidBrowser("curl")),
+    ("launch mode is validated", () => LaunchPolicy.IsValidMode("App") && !LaunchPolicy.IsValidMode("Powershell")),
+    ("default web opens with operating system handler", () =>
+    {
+        var plan = LaunchPolicy.Create(new ShortcutSettings { Name = "AI", LaunchMode = "Browser",
+            Url = "https://chatgpt.com/", Browser = "Default" }, _ => null);
+        return plan is { UseShellExecute: true } && plan.FileName == "https://chatgpt.com/";
+    }),
+    ("explicit browser cannot silently fall back", () =>
+        LaunchPolicy.Create(new ShortcutSettings { Name = "AI", LaunchMode = "Browser",
+            Browser = "Firefox", Url = "https://claude.ai" }, _ => null) is null),
+    ("shell command URL blocked", () =>
+        LaunchPolicy.Create(new ShortcutSettings { Url = "javascript:alert(1)" }, _ => null) is null),
+    ("app mode does not open website without executable", () =>
+        LaunchPolicy.Create(new ShortcutSettings { LaunchMode = "App", Url = "https://chatgpt.com" }, _ => null) is null),
+    ("observed open-tab signal validated", () => AiSignalPolicy.Parse("{\"provider\":\"Claude\",\"state\":\"open\"}")?.State == "open"),
+    ("extra transcript fields rejected even when short", () => AiSignalPolicy.Parse("{\"provider\":\"Grok\",\"state\":\"open\",\"prompt\":\"hi\"}") is null),
+    ("new compact defaults", () => new AppSettings().RailWidth == 46 && new AppSettings().PanelWidth == 320 &&
+        new AppSettings().PanelHeight == 560 && new AppSettings().ShowTaskbarButton),
     ("resizing clamps hostile preferences", () => InSandbox(root =>
     {
         File.WriteAllText(Path.Combine(root, "settings.json"), "{\"RailWidth\":900,\"PanelWidth\":40,\"PanelHeight\":5000}");
         var p = new SettingsService(root).Current;
-        return p.RailWidth == 76 && p.PanelWidth == 340 && p.PanelHeight == 900;
+        return p.RailWidth == 76 && p.PanelWidth == 300 && p.PanelHeight == 900;
     })),
     ("custom rail placement respects configured width", () =>
         ScreenPlacement.EdgeRailLeft("Right", 0, 0, 1920, railWidth: 72) == 1836),
@@ -29,8 +94,8 @@ var cases = new List<(string Name, Func<bool> Run)>
         UpdateService.Parse("{\"tag_name\":\"v1.9.0\",\"html_url\":\"https://evil.example/release\"}", new Version(1, 2)) is null),
     ("official update feed accepts newer stable release", () =>
         UpdateService.Parse("{\"tag_name\":\"v1.9.0\",\"html_url\":\"https://github.com/Davittaai/Sidelane/releases/tag/v1.9.0\"}", new Version(1, 2)) is not null),
-    ("right edge anchors narrow rail", () => Math.Abs(ScreenPlacement.EdgeRailLeft("Right", 80, 0, 1920) - 1854) < .001),
-    ("right rail expands to left", () => ScreenPlacement.WindowLeft(1854, true, true, 0, 1920) == 1548),
+    ("right edge anchors narrow rail", () => Math.Abs(ScreenPlacement.EdgeRailLeft("Right", 80, 0, 1920) - 1862) < .001),
+    ("right rail expands to left", () => ScreenPlacement.WindowLeft(1854, true, true, 0, 1920) == 1580),
     ("collapsed right rail maintains anchor", () => ScreenPlacement.WindowLeft(1854, false, true, 0, 1920) == 1854),
     ("multi-monitor negative coordinates supported", () => ScreenPlacement.WindowLeft(-1270, true, false, -1280, 0) == -1270),
     ("free placement opens inward near right edge", () => ScreenPlacement.RailOnRightForFree(1850, 0, 1920)),

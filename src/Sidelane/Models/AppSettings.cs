@@ -9,12 +9,14 @@ public sealed class AppSettings
     public bool RespectFullscreen { get; set; } = true;
     public bool StartupAtLogin { get; set; } = false;
     public bool StartCollapsed { get; set; } = true;
+    public bool ShowTaskbarButton { get; set; } = true;
+    public bool EnableAnimations { get; set; } = true;
     public string Edge { get; set; } = "Left";
     // Remembers which side of the panel holds the rail when dragged to a free position.
     public bool RailOnRight { get; set; }
-    public double RailWidth { get; set; } = 54;
-    public double PanelWidth { get; set; } = 360;
-    public double PanelHeight { get; set; } = 724;
+    public double RailWidth { get; set; } = 46;
+    public double PanelWidth { get; set; } = 320;
+    public double PanelHeight { get; set; } = 560;
     public double Opacity { get; set; } = 1.0;
     public string Accent { get; set; } = "#B9D8BF";
     public string Background { get; set; } = "#191C20";
@@ -29,6 +31,11 @@ public sealed class ShortcutSettings
     public string Symbol { get; set; } = "◈";
     public string Url { get; set; } = "";
     public string Match { get; set; } = "";
+    public string StatusProvider { get; set; } = "Auto";
+    public string LaunchMode { get; set; } = "Auto";
+    public string Browser { get; set; } = "Default";
+    public bool BrowserAppWindow { get; set; }
+    public string AppPath { get; set; } = "";
 
     public static List<ShortcutSettings> Defaults() => new()
     {

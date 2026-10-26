@@ -17,7 +17,7 @@ public static class AiSignalPolicy
             var provider = root.GetProperty("provider").GetString();
             var state = root.GetProperty("state").GetString();
             if (provider is not ("ChatGPT" or "Claude" or "Grok")) return null;
-            if (state is not ("generating" or "unknown" or "stopped")) return null;
+            if (state is not ("generating" or "open" or "unknown" or "stopped")) return null;
             return (provider, state);
         }
         catch (Exception ex) when (ex is JsonException or InvalidOperationException or KeyNotFoundException) { return null; }

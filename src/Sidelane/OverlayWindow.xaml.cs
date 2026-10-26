@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Animation;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -89,6 +90,8 @@ public partial class OverlayWindow : Window
         ApplyAppearance();
         SetExpanded(!_settings.Current.StartCollapsed);
         _ai.Start();
+        ShowInTaskbar = _settings.Current.ShowTaskbarButton;
+        if (_settings.Current.EnableAnimations) PlayEntrance();
         _refresh.Start();
         _focusRefresh.Start();
         UpdateAlwaysOnTop();
@@ -138,6 +141,8 @@ public partial class OverlayWindow : Window
     {
         var s = _settings.Current;
         FontFamily = new FontFamily(s.Font);
+        SearchBoxRow.Visibility = s.Shortcuts.Count > 6 ? Visibility.Visible : Visibility.Collapsed;
+        ShowInTaskbar = s.ShowTaskbarButton;
         // Opacity applies to surfaces, not labels: keep text and icons legible.
         Surface.Opacity = 1;
         Surface.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(s.Background))
@@ -149,7 +154,7 @@ public partial class OverlayWindow : Window
         if (wallpaper is not null) wallpaper.Opacity = 0.13;
         WallPaperLayer.Background = (Brush?)wallpaper ?? Brushes.Transparent;
         PrivacyDot.Fill = AccentBrush;
-        if (LogoButton.Content is Border b) b.Background = AccentBrush;
+        // The branded icon keeps its own colors independently of the selected accent.
         PinButton.Foreground = s.Locked ? AccentBrush : new SolidColorBrush(Color.FromRgb(160,170,187));
         var work = GetWorkArea();
         Height = Math.Max(300, Math.Min(s.PanelHeight, work.Height - 24));
@@ -160,8 +165,26 @@ public partial class OverlayWindow : Window
         RebuildApps();
     }
 
+    private void PlayEntrance()
+    {
+        Surface.Opacity = 0;
+        Surface.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(230))
+        { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
+    }
+
+    private void AnimateExpansion()
+    {
+        var offset = new TranslateTransform(10, 0);
+        ExpandedPane.RenderTransform = offset;
+        ExpandedPane.Opacity = 0;
+        offset.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(10, 0, TimeSpan.FromMilliseconds(165))
+        { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
+        ExpandedPane.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(170)));
+    }
+
     private void SetExpanded(bool expand)
     {
+        var wasExpanded = _expanded;
         _expanded = expand;
         var settings = _settings.Current;
         var area = GetWorkArea();
@@ -182,6 +205,8 @@ public partial class OverlayWindow : Window
         Top = ScreenPlacement.WindowTop(_settings.Current.Top, Height, area.Top, area.Bottom);
         ExpandedPane.Visibility = expand ? Visibility.Visible : Visibility.Collapsed;
         LogoButton.ToolTip = expand ? "Collapse" : "Expand";
+        if (expand && !wasExpanded && settings.EnableAnimations) AnimateExpansion();
+        else { ExpandedPane.BeginAnimation(OpacityProperty, null); ExpandedPane.Opacity = 1; }
     }
 
     private void Window_MouseEnter(object sender, MouseEventArgs e)
@@ -278,6 +303,7 @@ public partial class OverlayWindow : Window
             PlayPause.IsEnabled = media.CanToggle;
             PreviousTrack.IsEnabled = media.CanPrevious;
             NextTrack.IsEnabled = media.CanNext;
+            LoadingBar.Visibility = Visibility.Collapsed;
         }
         catch (Exception)
         {
@@ -287,8 +313,21 @@ public partial class OverlayWindow : Window
             PlayPause.IsEnabled = false;
             PreviousTrack.IsEnabled = false;
             NextTrack.IsEnabled = false;
+            LoadingBar.Visibility = Visibility.Collapsed;
         }
         finally { _refreshing = false; }
+    }
+
+    private void EditActivityNote(string name)
+    {
+        var previous = _activities.Get(name).Note;
+        HoldExpandedForDialog(true);
+        string? response;
+        try { response = ActivityNoteWindow.Prompt(this, name, previous); }
+        finally { HoldExpandedForDialog(false); }
+        if (response is null) return;
+        _activities.SetNote(name, response);
+        RebuildApps();
     }
 
     private static string ToStatusName(string value) => value switch
@@ -309,15 +348,24 @@ public partial class OverlayWindow : Window
         foreach (var item in _settings.Current.Shortcuts)
         {
             var target = _available.FirstOrDefault(w => WindowService.Matches(w, item.Match));
-            if (target is not null) visible++;
+            // Count installed apps and observed browser tabs without inventing state.
             var activity = _activities.Get(item.Name);
             var manual = activity.Status.Length > 0 ? ToStatusName(activity.Status) : null;
-            var observed = _ai.Get(item.Name);
+            var observed = _ai.Get(AiProviderPolicy.Resolve(item));
+            if (target is not null || observed.Length > 0) visible++;
+            var generating = observed.StartsWith("Generating", StringComparison.Ordinal);
             var isFocused = target is not null && WindowService.IsFocused(target.Handle);
+            var availableDestination = item.LaunchMode switch
+            {
+                "App" => "Launch desktop app",
+                "Browser" => "Open in " + item.Browser,
+                _ => !string.IsNullOrEmpty(item.AppPath) ? "Launch desktop app" :
+                     LinkPolicy.TryGetWebTarget(item.Url, out _) ? "Open website" : "Not open"
+            };
             var state = manual ?? (observed.Length > 0 ? observed : isFocused ? "In focus" :
-                target is not null ? "Open" :
-                LinkPolicy.TryGetWebTarget(item.Url, out _) ? "Open website" : "Not open");
-            if (activity.Note.Length > 0) state = activity.Note;
+                target is not null ? "Open" : availableDestination);
+            if (activity.Note.Length > 0)
+                state = generating ? observed + " · " + activity.Note : activity.Note;
             var dotColor = manual is not null || observed.Length > 0 || activity.Note.Length > 0 || isFocused ? AccentBrush :
                 (target is not null ? new SolidColorBrush(Color.FromRgb(127,135,139)) :
                 new SolidColorBrush(Color.FromRgb(91,96,104)));
@@ -325,13 +373,13 @@ public partial class OverlayWindow : Window
             var btn = new Button
             {
                 Style = (Style)FindResource("AppRowButton"),
-                Height = 48, Margin = new Thickness(0,0,0,2),
+                Height = 42, Margin = new Thickness(0,0,0,1),
                 ToolTip = BuildShortcutTooltip(item.Name, state, target?.Title, manual)
             };
             var grid = new Grid();
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(34) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(14) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20) });
             var ico = new Border
             {
                 Background = new SolidColorBrush(Color.FromRgb(44,47,53)), CornerRadius = new CornerRadius(9),
@@ -343,12 +391,35 @@ public partial class OverlayWindow : Window
                 }
             };
             Grid.SetColumn(ico, 0); grid.Children.Add(ico);
-            var labels = new StackPanel { Margin = new Thickness(9,2,0,0) };
+            var labels = new StackPanel { Margin = new Thickness(7,0,0,0) };
             labels.Children.Add(new TextBlock { Text = item.Name, FontWeight = FontWeights.Medium, FontSize = 12.3, Foreground = new SolidColorBrush(Color.FromRgb(236,237,235)), TextTrimming = TextTrimming.CharacterEllipsis });
-            labels.Children.Add(new TextBlock { Text = state, FontSize = 10, Foreground = new SolidColorBrush(Color.FromRgb(148,152,158)), Margin = new Thickness(0,3,0,0), TextTrimming = TextTrimming.CharacterEllipsis });
+            labels.Children.Add(new TextBlock { Text = state, FontSize = 10, Foreground = new SolidColorBrush(Color.FromRgb(148,152,158)), Margin = new Thickness(0,1,0,0), TextTrimming = TextTrimming.CharacterEllipsis });
             Grid.SetColumn(labels, 1); grid.Children.Add(labels);
             var dot = new Ellipse { Width = 6, Height = 6, Fill = dotColor, VerticalAlignment = VerticalAlignment.Center };
-            Grid.SetColumn(dot, 2); grid.Children.Add(dot);
+            if (generating)
+            {
+                var wave = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal,
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Center };
+                for (var i = 0; i < 3; i++)
+                {
+                    var bar = new System.Windows.Shapes.Rectangle { Width = 2.5, Height = 12, RadiusX = 1.2, RadiusY = 1.2,
+                        Fill = AccentBrush, Margin = new Thickness(1.3, 0, 1.3, 0),
+                        RenderTransformOrigin = new System.Windows.Point(.5, .5),
+                        RenderTransform = new ScaleTransform(1, .38) };
+                    if (_settings.Current.EnableAnimations)
+                        bar.RenderTransform.BeginAnimation(ScaleTransform.ScaleYProperty,
+                            new DoubleAnimation(.3, 1, TimeSpan.FromMilliseconds(470 + i * 95))
+                            { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever });
+                    wave.Children.Add(bar);
+                }
+                Grid.SetColumn(wave, 2);
+                grid.Children.Add(wave);
+            }
+            else
+            {
+                Grid.SetColumn(dot, 2); grid.Children.Add(dot);
+            }
             btn.Content = grid;
             btn.Click += (_, _) => ActivateShortcut(item);
             var context = new ContextMenu();
@@ -360,17 +431,7 @@ public partial class OverlayWindow : Window
             }
             context.Items.Add(new Separator());
             var editNote = new MenuItem { Header = "Set activity note..." };
-            editNote.Click += (_, _) =>
-            {
-                var previous = _activities.Get(item.Name).Note;
-                HoldExpandedForDialog(true);
-                string? response;
-                try { response = ActivityNoteWindow.Prompt(this, item.Name, previous); }
-                finally { HoldExpandedForDialog(false); }
-                if (response is null) return; // cancelled
-                _activities.SetNote(item.Name, response);
-                RebuildApps();
-            };
+            editNote.Click += (_, _) => EditActivityNote(item.Name);
             context.Items.Add(editNote);
             var clearNote = new MenuItem { Header = "Clear activity note", IsEnabled = activity.Note.Length > 0 };
             clearNote.Click += (_, _) => { _activities.SetNote(item.Name, ""); RebuildApps(); };
@@ -378,13 +439,34 @@ public partial class OverlayWindow : Window
             btn.ContextMenu = context;
             if (filter.Length == 0 || item.Name.Contains(filter, StringComparison.OrdinalIgnoreCase) ||
                 state.Contains(filter, StringComparison.OrdinalIgnoreCase))
-                AppRows.Items.Add(btn);
+            {
+                var row = new Grid();
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                Grid.SetColumn(btn, 0);
+                row.Children.Add(btn);
+                var noteButton = new Button
+                {
+                    Content = "✎",
+                    ToolTip = "Set what " + item.Name + " is working on (manual note)",
+                    Style = (Style)FindResource("IconButton"),
+                    Width = 25,
+                    Height = 31,
+                    FontSize = 13,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(0, 0, 2, 0)
+                };
+                noteButton.Click += (_, _) => EditActivityNote(item.Name);
+                Grid.SetColumn(noteButton, 1);
+                row.Children.Add(noteButton);
+                AppRows.Items.Add(row);
+            }
 
             if (RailItems.Items.Count < 6)
             {
                 var rail = new Button
                 {
-                    Content = item.Symbol, FontSize = 18, Width = 39, Height = 40,
+                    Content = item.Symbol, FontSize = 17, Width = 33, Height = 34,
                     Foreground = isFocused ? AccentBrush : new SolidColorBrush(Color.FromRgb(170,175,178)),
                     Style = (Style)FindResource("IconButton"),
                     ToolTip = BuildShortcutTooltip(item.Name, state, target?.Title, manual), Margin = new Thickness(0,0,0,4),
@@ -395,6 +477,7 @@ public partial class OverlayWindow : Window
             }
         }
         AppsCount.Text = $"{visible} open";
+        StatusSummary.Text = _settings.Current.Shortcuts.Count + " shortcuts · " + _settings.Current.Shortcuts.Count(i => _ai.Get(AiProviderPolicy.Resolve(i)).StartsWith("Generating", StringComparison.Ordinal)) + " working";
     }
 
     private static string BuildShortcutTooltip(string appName, string state, string? windowTitle, string? manualStatus)
@@ -419,11 +502,24 @@ public partial class OverlayWindow : Window
 
     private void ActivateShortcut(ShortcutSettings shortcut)
     {
-        var existing = _available.FirstOrDefault(w => WindowService.Matches(w, shortcut.Match));
-        if (existing is not null) { WindowService.Focus(existing.Handle); return; }
-        if (!LinkPolicy.TryGetWebTarget(shortcut.Url, out var uri) || uri is null) return;
-        try { Process.Start(new ProcessStartInfo(uri.ToString()) { UseShellExecute = true }); }
-        catch (Exception) { /* An invalid or unavailable target should not crash the overlay. */ }
+        if (shortcut.LaunchMode is "Auto" or "App")
+        {
+            var existing = _available.FirstOrDefault(w => WindowService.Matches(w, shortcut.Match));
+            if (existing is not null) { WindowService.Focus(existing.Handle); return; }
+        }
+        var plan = LaunchPolicy.Create(shortcut, BrowserLocator.Locate);
+        if (plan is null)
+        {
+            System.Windows.MessageBox.Show("No usable launch target found. In Preferences, choose a browser or select the installed app executable.", 
+                "Sidelane shortcut", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+        try { Process.Start(plan); }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException or System.IO.IOException)
+        {
+            System.Windows.MessageBox.Show("Couldn't open the selected app or browser. Check its installation and shortcut settings.", 
+                "Sidelane shortcut", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
     }
 
     private async void Prev_Click(object sender, RoutedEventArgs e) { await _media.ControlAsync("previous"); await RefreshAsync(); }

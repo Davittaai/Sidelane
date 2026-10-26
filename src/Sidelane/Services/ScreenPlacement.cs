@@ -4,11 +4,11 @@ namespace Sidelane.Services;
 // left edge of the narrow strip, regardless of which side expands.
 public static class ScreenPlacement
 {
-    public const double RailWidth = 54;
-    public const double ExpandedWidth = 360;
-    public static double NormalizeRailWidth(double value) => double.IsFinite(value) ? Math.Clamp(value, 54, 76) : RailWidth;
-    public static double NormalizePanelWidth(double value, double railWidth = RailWidth) => double.IsFinite(value) ? Math.Clamp(value, Math.Max(340, railWidth + 220), 520) : ExpandedWidth;
-    public static double NormalizePanelHeight(double value) => double.IsFinite(value) ? Math.Clamp(value, 420, 900) : 724;
+    public const double RailWidth = 46;
+    public const double ExpandedWidth = 320;
+    public static double NormalizeRailWidth(double value) => double.IsFinite(value) ? Math.Clamp(value, 42, 76) : RailWidth;
+    public static double NormalizePanelWidth(double value, double railWidth = RailWidth) => double.IsFinite(value) ? Math.Clamp(value, Math.Max(300, railWidth + 220), 520) : ExpandedWidth;
+    public static double NormalizePanelHeight(double value) => double.IsFinite(value) ? Math.Clamp(value, 360, 900) : 560;
 
     public static double EdgeRailLeft(string edge, double savedRailLeft,
         double workLeft, double workRight, double margin = 12, double railWidth = RailWidth) => edge switch

@@ -1,9 +1,10 @@
-#define AppVersion "1.2.0"
+#define AppVersion "1.3.0"
 [Setup]
 SourceDir=..
 AppId={{D9309A9A-B081-467B-B096-1187F1AECC06}
 AppName=Sidelane
 AppVersion={#AppVersion}
+SetupIconFile=src\Sidelane\Assets\sidelane.ico
 AppPublisher=Davit Naskidashvili
 AppPublisherURL=https://github.com/Davittaai/Sidelane
 AppSupportURL=https://github.com/Davittaai/Sidelane/issues

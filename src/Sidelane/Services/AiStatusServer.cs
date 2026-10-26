@@ -65,6 +65,7 @@ public sealed class AiStatusServer : IDisposable
             {
                 "generating" => "Generating · browser",
                 "stopped" => "Recently stopped · browser",
+                "open" => "Open · Chrome tab",
                 _ => ""
             };
         }
