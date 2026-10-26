@@ -1,62 +1,52 @@
 # Sidelane
 
-A compact, customizable **Windows workspace rail** for your AI tools, desktop apps, browser profiles, media and temporary tasks. Native .NET 10 WPF, no Electron, no account, no telemetry.
+**A workspace for the things you're working on.** A small, local-first Windows rail for launching ChatGPT, Claude, Grok, Codex and desktop apps, keeping track of what is open, controlling system media and jotting disposable tasks.
 
-<p><img src="docs/sidelane-app-icon.png" alt="Sidelane app icon" width="82" /></p>
+Native **.NET 10 / WPF**, no Electron, cloud account, analytics or background chat-history collection. MIT-licensed.
 
-**[Get v1.3 Beta 2 installer](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.2/SidelaneSetup.exe)** · **[Portable ZIP](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.2/Sidelane-win-x64.zip)** · [Release notes](docs/RELEASE-NOTES-v1.3-beta.md) · [Installer SHA256](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.2/SidelaneSetup.sha256)
+**[Download v2.0 Beta 1 Setup](https://github.com/Davittaai/Sidelane/releases/download/v2.0.0-beta.1/SidelaneSetup.exe)** · **[Portable ZIP](https://github.com/Davittaai/Sidelane/releases/download/v2.0.0-beta.1/Sidelane-win-x64.zip)** · [Release page and SHA256](https://github.com/Davittaai/Sidelane/releases/tag/v2.0.0-beta.1) · [Source and issues](https://github.com/Davittaai/Sidelane)
 
-**Stable version:** [v1.0.0](https://github.com/Davittaai/Sidelane/releases/tag/v1.0.0). **Latest beta:** [v1.3.0-beta.2](https://github.com/Davittaai/Sidelane/releases/tag/v1.3.0-beta.2). The latest beta is a real downloadable Windows build, not a browser mockup. It still requires real-device QA before stable promotion.
+> **Beta release:** the app compiles, runs, and passes hosted Windows installer and core tests, but live multi-monitor/DPI, media, accessibility and browser-service verification still need real-device sign-off. [Stable v1.0](https://github.com/Davittaai/Sidelane/releases/tag/v1.0.0) remains available.
 
-## Native Windows screenshots
+## This is v2
 
-<table><tr><td><img src="docs/native-sidebar-v13.png" alt="Compact Sidelane WPF sidebar" width="318"></td><td><img src="docs/native-preferences-v13.png" alt="Sidelane preferences with themes and navigation" width="479"></td></tr></table>
+<table><tr><td width="64%"><img src="docs/v2-setup.png" alt="Actual Windows Sidelane guided workspace setup" width="520" /></td><td width="36%"><img src="docs/v2-sidebar.png" alt="Actual native Sidelane compact rail and workspace" width="310" /></td></tr></table>
 
-*Real WPF screenshots captured on a hosted Windows runner, not concept renders. Live AI services, browser selection and mixed-DPI user environments need separate device testing.*
+*Images are actual WPF captures from a Windows CI machine, cropped to the app boundaries, not design renders.*
 
-## Beta 2 maintenance improvements
+The **new first-run experience** asks what tools you want, which installed browser should open them, whether to use detected desktop-app shortcuts, your theme, and whether the taskbar button should appear. New users are guided; existing saved profiles are preserved. Reopen **Quick setup...** from the tray at any time. Sidelane asks before replacing an existing profile.
 
-- **Reliable launch fallback:** Auto mode opens the saved website when the selected desktop app is missing. Explicit App mode still never opens a browser without permission.
-- **Whole-rail personalization:** custom dark backgrounds now color the rail, dividers and loading indicator consistently.
-- **Backup & restore:** import/export your saved settings locally in Preferences. An invalid backup cannot overwrite working preferences; temporary tasks and notes are not exported.
-- **Start Menu app picking:** browse installed program shortcuts more easily.
-- **[Next feature backlog](docs/M7-UPDATE-BACKLOG.md):** first-run wizard, hotkey conflict handling, connection clarity and accessibility checks, deliberately separate from the stable release gate.
+**v2 feature highlights**
 
-## Features
+- **Native app or browser, your choice.** Every shortcut supports Browser, App or Auto mode. Pick Chrome, Edge, Firefox, Brave or Windows default, or choose a local EXE / Windows Start Menu shortcut. The quick setup uses exact Start Menu filename matches for supported AI tools. It never launches apps during discovery.
+- **Fast desktop navigation.** Collapse/expand on hover, drag and pin the rail, customize its width/height, and choose placement. Press `/` to reveal a quick filter, `Enter` to open its first match, or `Escape` to clear/collapse.
+- **Configurable hotkey.** Choose `Ctrl+Alt+Space`, `Ctrl+Shift+Space` or disable it. If another program has reserved the selected shortcut, Sidelane warns and attempts to keep the old binding.
+- **Make it yours.** Sage, Slate, Sand and Iris themes, custom colors, local background image, fonts, opacity, taskbar button and animations. The v2 rail, dividers, media card and loading indicator share your theme. The rail and welcome screen use high-resolution Sidelane artwork.
+- **Activity without surveillance.** See open or focused Windows applications. Type a short temporary task label next to any AI shortcut, or set a manual Working / Waiting / Ready status. Optional Chrome native messaging can observe Open / Generating / Recently stopped on supported pages. **Sidelane cannot read or infer actual task descriptions, percentage progress or successful completion from these signals.**
+- **Small built-in helpers.** System media transport controls, including supported Spotify sessions, and a scratchpad whose contents disappear on app exit. Preferences can be exported/imported to a local JSON backup; session notes are not included.
+- **Proper distribution.** Per-user Windows installer with shortcuts/uninstall, a portable self-contained ZIP, official-release update checks with approval and SHA256 verification. Both installers and portable ZIPs have published checksums.
 
-- **Your size:** the collapsed rail starts at 46 display-independent pixels; the expanded view is 320 wide and 560 high. Change each dimension in Preferences, and position it left, right or freely.
-- **Your colors:** coordinated Sage, Slate, Sand and Iris palettes, custom Windows color pickers, dark-surface contrast protection, opacity, local wallpaper and font choices. Saved preferences can also be exported/imported without storing temporary task contents.
-- **Your apps or browser:** select **Auto** (focus a matching window first), **App** (launch the chosen `.exe` or Windows `.lnk` shortcut, including Store-app shortcuts), or **Browser** (default, Chrome, Edge, Firefox or Brave). Chromium browsers can open a standalone web-app window. The App option will not silently open the website.
-- **Visibility and status:** an open native app can be detected from its process. The optional Chrome companion can observe open, generating and recently stopped states for ChatGPT, Claude and Grok, when supported by their current UI. Status is based on site controls; **Sidelane cannot automatically read or name your tasks**.
-- **Your task labels:** use the pencil button beside an app to attach a manual, temporary description of what you're working on. Manual labels and disposable scratchpad tasks are held in memory only and clear at exit.
-- **Music:** local Windows media-session title/artist and available playback controls, including Spotify when its Windows session supports them.
-- **Motion:** subtle entry animation, short loading indicator, and small animated bars when an opted-in browser reports generation. Disable animations in Preferences.
-- **Windows integration:** taskbar icon while open (configurable), system-tray controls, Ctrl+Alt+Space visibility shortcut, optional login launch, standard installer and uninstall entry, and consent-based checks for verified GitHub updates.
+## Get started
 
-## Install
+1. Run [SidelaneSetup.exe](https://github.com/Davittaai/Sidelane/releases/download/v2.0.0-beta.1/SidelaneSetup.exe) on Windows 10/11 x64. No separate .NET runtime installation needed. The app is **unsigned** and SmartScreen may prompt.
+2. On first launch, select your tools, browser and appearance in **Build your workspace**. The welcome screen skips desktop-only tools that have no usable local shortcut.
+3. Open **Preferences → Apps** for advanced per-shortcut launch settings; use **Appearance** and **Layout** to customize.
+4. Use the tray menu for **Quick setup...**, updates and exit. A second launch focuses the running Sidelane instead of opening a duplicate.
+5. If needed, read the [optional Chrome companion guide](companion/README.md). It is **not installed or activated automatically** and does not work with arbitrary Edge/Firefox/Brave provider tabs.
 
-1. Download [SidelaneSetup.exe](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.2/SidelaneSetup.exe), or use the [portable ZIP](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.2/Sidelane-win-x64.zip) without installation.
-2. The self-contained Windows x64 app does **not** require installing the .NET SDK. The binary is **unsigned**, so SmartScreen may warn. Verify its [SHA256](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.2/SidelaneSetup.sha256) and use files only from the official repository.
-3. Open **Preferences → Apps**. Choose the shortcut, launch mode, selected browser or installed application file, and optionally the activity provider. Choose **Appearance** and **Layout** to personalize the rail.
-4. Press **Ctrl+Alt+Space** to show the overlay; hover to expand; use the pencil by an AI app to describe a task without saving its content.
+### Updating from v1.3
 
-**Optional Chrome companion:** not installed or activated automatically. [Instructions and privacy boundaries](companion/README.md). The native app works independently without this extension. Other browsers may be chosen for launching, but automatic AI activity observation is currently an experimental **Chrome-only** integration.
+The installation uses the existing Sidelane profile at `%APPDATA%\Sidelane\settings.json`. Existing users keep their saved shortcuts, browser choices, size and theme. Quick Setup is opt-in when a profile already exists. Consider **Preferences → Export settings** before making major changes. Temporary tasks and activity notes were always session-only.
 
-## Building and verification
+## Build, test and contribute
 
 ```powershell
 dotnet run --project tests/Sidelane.CoreTests/Sidelane.CoreTests.csproj -c Release
 dotnet publish src/Sidelane/Sidelane.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o release
 ```
 
-Or run `Build-Sidelane.cmd` on Windows with the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0).
+You need the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) for building. `Build-Sidelane.cmd` offers a local build entrypoint on Windows. Release CI also validates XAML handlers, browser-companion JS, the native host protocol, Windows process startup, the portable ZIP and install/uninstall.
 
-The v1.3 beta engineering suite passed **81/81 core tests**, warning-as-error WPF compilation, native process launch, local native-messaging protocol checks, and installer install/uninstall checks: [Windows CI evidence](https://github.com/Davittaai/Sidelane/actions/runs/40318407221). Those checks do not validate real live Chrome service markup, hotkey conflicts, mixed monitor/DPI setups or the user's Spotify sessions. Track outstanding acceptance in [Windows QA](docs/WINDOWS-QA.md), [UX review](docs/UX-REVIEW-v1.3.md), and [Issues](https://github.com/Davittaai/Sidelane/issues).
+See [what changed and what remains unverified](docs/V2-DELIVERY-AUDIT.md), [v2 beta notes](docs/RELEASE-NOTES-v2.md), [SECURITY](SECURITY.md), [MIT license](LICENSE) and [third-party notices](THIRD_PARTY_NOTICES.md). Earlier Win32 source derived from MIT-licensed Quick Apps Overlay is attributed. WPF UI / Microsoft PowerToys interaction patterns were researched, but no heavy external framework was vendored.
 
-## Architecture, privacy and credits
-
-Local preferences are stored at `%APPDATA%\Sidelane\settings.json`; tasks and manual labels are session-only. The optional companion sends short provider/state pairs over Chrome native messaging and a current-user named pipe, not transcripts, prompts or replies. The in-app stable update checker uses official GitHub releases and verifies SHA256 before opening a user-approved installer. See [SECURITY.md](SECURITY.md).
-
-License: [MIT](LICENSE). Portions of the Win32 window management were adapted from [Quick Apps Overlay](https://github.com/vhvb1989/quick-apps-overlay) under MIT (see [third-party notices](THIRD_PARTY_NOTICES.md)). Design and launch references included [WPF UI](https://github.com/lepoco/wpfui), [PixiEditor ColorPicker](https://github.com/PixiEditor/ColorPicker), and [BrowserPicker](https://github.com/mortenn/BrowserPicker); no heavy UI framework was vendored.
-
-Built as a free, open-source portfolio project by Davit Naskidashvili.
+Developed as an open-source Windows portfolio application. Bugs, accessibility findings and tested screenshots are welcome via [GitHub Issues](https://github.com/Davittaai/Sidelane/issues).
