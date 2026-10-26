@@ -106,6 +106,8 @@ jobs:
         run: |
           $hash = (Get-FileHash Sidelane-win-x64.zip -Algorithm SHA256).Hash.ToLowerInvariant()
           "$hash  Sidelane-win-x64.zip" | Set-Content Sidelane-win-x64.sha256 -Encoding ascii
+          $installerHash = (Get-FileHash dist/SidelaneSetup.exe -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$installerHash  SidelaneSetup.exe" | Set-Content dist/SidelaneSetup.sha256 -Encoding ascii
       - uses: actions/upload-artifact@v4
         with:
           name: Sidelane-win-x64
@@ -113,6 +115,7 @@ jobs:
             Sidelane-win-x64.zip
             Sidelane-win-x64.sha256
             dist/SidelaneSetup.exe
+            dist/SidelaneSetup.sha256
           retention-days: 14
 
   release:
@@ -128,4 +131,8 @@ jobs:
       - name: Create release for an explicitly pushed tag
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${GITHUB_REF_NAME}" Sidelane-win-x64.zip Sidelane-win-x64.sha256 --repo "${GITHUB_REPOSITORY}" --title "Sidelane ${GITHUB_REF_NAME}" --generate-notes --verify-tag
+        run: |
+          flags=()
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then flags+=(--prerelease); fi
+          gh release create "${GITHUB_REF_NAME}" Sidelane-win-x64.zip Sidelane-win-x64.sha256 dist/SidelaneSetup.exe dist/SidelaneSetup.sha256 \
+            --repo "${GITHUB_REPOSITORY}" --title "Sidelane ${GITHUB_REF_NAME}" --generate-notes --verify-tag "${flags[@]}"
