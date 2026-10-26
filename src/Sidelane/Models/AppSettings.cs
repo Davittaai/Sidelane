@@ -42,6 +42,6 @@ public sealed class ShortcutSettings
         new() { Name="Claude", Symbol="✺", Url="https://claude.ai", Match="claude" },
         new() { Name="Grok", Symbol="✧", Url="https://grok.com", Match="grok" },
         new() { Name="Codex", Symbol="⌘", Url="https://chatgpt.com/codex", Match="codex" },
-        new() { Name="VS Code", Symbol="⌁", Match="code.exe|visual studio code", LaunchMode="App" },
+        new() { Name="VS Code", Symbol="⌁", Match="code.exe|visual studio code" },
     };
 }

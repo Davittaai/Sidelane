@@ -12,14 +12,14 @@ function detect() {
     const testId = (button.getAttribute("data-testid") || "").toLowerCase();
     if (testId === "stop-button" || /^stop (generating|response|generation|streaming)$/.test(label)) return "generating";
   }
-  return "unknown";
+  return "open";
 }
 function observe() {
   scheduled = false;
   const state = detect();
   const now = Date.now();
   // A disappearing Stop control is suggestive, not proof that a request completed.
-  const signal = previous === "generating" && state === "unknown" ? "stopped" : state;
+  const signal = previous === "generating" && state === "open" ? "stopped" : state;
   if (signal !== previous || now - lastSent >= 4000) {
     try { chrome.runtime.sendMessage({type: "status", state: signal}); } catch {}
     lastSent = now;

@@ -18,6 +18,6 @@ chrome.runtime.onMessage.addListener((message, sender) => {
   try { url = new URL(sender.url); } catch { return; }
   const provider = hosts[url.hostname];
   if (url.protocol !== "https:" || !provider) return;
-  if (!["generating", "unknown", "stopped"].includes(message.state)) return;
+  if (!["generating", "open", "unknown", "stopped"].includes(message.state)) return;
   getPort().postMessage({provider, state: message.state});
 });
