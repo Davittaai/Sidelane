@@ -371,7 +371,7 @@ public partial class OverlayWindow : Window
             var grid = new Grid();
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(34) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(14) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20) });
             var ico = new Border
             {
                 Background = new SolidColorBrush(Color.FromRgb(44,47,53)), CornerRadius = new CornerRadius(9),
