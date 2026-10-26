@@ -1,3 +1,4 @@
+using System.IO;
 using System.Net.Http;
 using System.Drawing;
 using System.Diagnostics;
@@ -88,7 +89,7 @@ public partial class App : System.Windows.Application
         if (release is null || _updating) return;
         if (release.Installer is null || release.Checksum is null)
         { OpenUpdatePage(release.Page); return; }
-        if (MessageBox.Show($"Download and verify Sidelane {release.Version} installer from the official GitHub release? The setup runs only with your approval.",
+        if (System.Windows.MessageBox.Show($"Download and verify Sidelane {release.Version} installer from the official GitHub release? The setup runs only with your approval.",
             "Sidelane update", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
         _updating = true;
         try
@@ -99,7 +100,7 @@ public partial class App : System.Windows.Application
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or HttpRequestException or TaskCanceledException or System.ComponentModel.Win32Exception or InvalidOperationException)
         {
-            MessageBox.Show("Update could not be verified or started. Use the official release page instead.",
+            System.Windows.MessageBox.Show("Update could not be verified or started. Use the official release page instead.",
                 "Sidelane update", MessageBoxButton.OK, MessageBoxImage.Warning);
             OpenUpdatePage(release.Page);
         }
@@ -126,13 +127,13 @@ public partial class App : System.Windows.Application
 
             }
             else if (interactive)
-                System.Windows.MessageBox.Show("You're on the latest stable release.",
+                System.Windows.System.Windows.MessageBox.Show("You're on the latest stable release.",
                     "Sidelane updates", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (OperationCanceledException) { }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)
         {
-            if (interactive) System.Windows.MessageBox.Show("Could not check GitHub releases.",
+            if (interactive) System.Windows.System.Windows.MessageBox.Show("Could not check GitHub releases.",
                 "Sidelane updates", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
