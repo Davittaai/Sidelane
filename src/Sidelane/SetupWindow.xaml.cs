@@ -66,27 +66,19 @@ public partial class SetupWindow : Window
             Validation.Text = "Choose at least one tool, or use defaults.";
             return;
         }
-        var settings = _settings.EditableCopy();
         var browser = (BrowserChoice.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Default";
-        settings.Shortcuts = ShortcutSettings.Defaults().Where(x => selected.Contains(x.Name)).ToList();
-        foreach (var shortcut in settings.Shortcuts)
-        {
-            shortcut.Browser = browser;
-            shortcut.LaunchMode = "Auto";
-            if (PreferAppsCheck.IsChecked == true && _installed.TryGetValue(shortcut.Name, out var path))
-                shortcut.AppPath = path;
-            // A browser fallback for VS Code without an installed target is not useful.
-            if (shortcut.Name == "VS Code" && string.IsNullOrEmpty(shortcut.AppPath))
-                shortcut.LaunchMode = "App";
-        }
         var theme = new[] { SageTheme, SlateTheme, SandTheme, IrisTheme }
             .FirstOrDefault(x => x.IsChecked == true)?.Tag?.ToString()?.Split('|');
-        if (theme is { Length: 2 })
+        var settings = WorkspaceSetupPolicy.Configure(_settings.EditableCopy(), selected, browser,
+            PreferAppsCheck.IsChecked == true, _installed,
+            theme is { Length: 2 } ? theme[0] : "#B9D8BF",
+            theme is { Length: 2 } ? theme[1] : "#191C20",
+            TaskbarCheck.IsChecked == true);
+        if (settings.Shortcuts.Count == 0)
         {
-            settings.Accent = theme[0];
-            settings.Background = theme[1];
+            Validation.Text = "None of the selected tools has a working launch target. Choose a browser-based tool.";
+            return;
         }
-        settings.ShowTaskbarButton = TaskbarCheck.IsChecked == true;
         try
         {
             _settings.Replace(settings);
@@ -102,8 +94,11 @@ public partial class SetupWindow : Window
     {
         try
         {
-            _settings.Save(); // Mark first run complete without changing any existing preferences.
-            DialogResult = false;
+            var defaults = WorkspaceSetupPolicy.Configure(_settings.EditableCopy(),
+                ShortcutSettings.Defaults().Select(x => x.Name),
+                "Default", true, _installed, "#B9D8BF", "#191C20", true);
+            _settings.Replace(defaults);
+            DialogResult = true;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

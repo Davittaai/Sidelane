@@ -58,6 +58,38 @@ var cases = new List<(string Name, Func<bool> Run)>
         try { new SettingsService(root).Import(file); return false; }
         catch (InvalidDataException) { return true; }
     })),
+    ("wizard honors a chosen Firefox browser rather than an arbitrary existing tab", () =>
+    {
+        var configured = WorkspaceSetupPolicy.Configure(new AppSettings(), ["ChatGPT", "Claude"],
+            "Firefox", false, new Dictionary<string,string>(), "#9BC9E2", "#17212D", true);
+        return configured.Shortcuts.Count == 2 &&
+            configured.Shortcuts.All(x => x.LaunchMode == "Browser" && x.Browser == "Firefox") &&
+            configured.Accent == "#9BC9E2" && configured.Background == "#17212D";
+    }),
+    ("wizard does not create a broken VS Code launch without local shortcut", () =>
+    {
+        var configured = WorkspaceSetupPolicy.Configure(new AppSettings(), ["VS Code", "ChatGPT"],
+            "Default", true, new Dictionary<string,string>(), "#B9D8BF", "#191C20", true);
+        return configured.Shortcuts.Count == 1 && configured.Shortcuts[0].Name == "ChatGPT";
+    }),
+    ("wizard uses opted-in local shortcut rather than web target", () => InSandbox(root =>
+    {
+        var shortcut = Path.Combine(root, "ChatGPT.lnk");
+        File.WriteAllText(shortcut, "dummy");
+        var found = new Dictionary<string,string> { ["ChatGPT"] = shortcut };
+        var configured = WorkspaceSetupPolicy.Configure(new AppSettings(), ["ChatGPT"],
+            "Chrome", true, found, "#B9D8BF", "#191C20", false);
+        return configured.Shortcuts.Single().LaunchMode == "App" &&
+            configured.Shortcuts.Single().AppPath == shortcut &&
+            !configured.ShowTaskbarButton;
+    })),
+    ("wizard falls back safely when browser option is invalid", () =>
+    {
+        var configured = WorkspaceSetupPolicy.Configure(new AppSettings(), ["Grok"],
+            "Unsupported", false, new Dictionary<string,string>(), "#FFFFFF", "#FFFFFF", true);
+        return configured.Shortcuts.Single().Browser == "Default" &&
+            configured.Background == "#191C20";
+    }),
     ("new local install opens setup only before profile is saved", () => InSandbox(root =>
     {
         var initial = new SettingsService(root);
