@@ -12,6 +12,8 @@ public static class AiSignalPolicy
         {
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
+            if (root.ValueKind != JsonValueKind.Object || root.EnumerateObject().Count() != 2) return null;
+            if (root.EnumerateObject().Any(x => x.Name is not ("provider" or "state"))) return null;
             var provider = root.GetProperty("provider").GetString();
             var state = root.GetProperty("state").GetString();
             if (provider is not ("ChatGPT" or "Claude" or "Grok")) return null;

@@ -402,9 +402,7 @@ public partial class OverlayWindow : Window
         var tooltip = appName + "\n" + state;
         if (manualStatus is not null && !state.Equals(manualStatus, StringComparison.Ordinal))
             tooltip += "\n" + manualStatus;
-        if (!string.IsNullOrWhiteSpace(windowTitle) &&
-            !windowTitle.Equals(appName, StringComparison.OrdinalIgnoreCase))
-            tooltip += "\nWindow: " + windowTitle;
+        // Avoid exposing private browser conversation titles in app tooltips.
         return tooltip;
     }
 

@@ -20,6 +20,7 @@ public sealed class WindowService
     public IReadOnlyList<WindowEntry> Enumerate()
     {
         var result = new List<WindowEntry>();
+        var processNames = new Dictionary<uint, string>();
         NativeMethods.EnumWindows((hwnd, _) =>
         {
             if (hwnd == OwnHandle || !NativeMethods.IsWindowVisible(hwnd)) return true;
@@ -34,8 +35,12 @@ public sealed class WindowService
             NativeMethods.GetWindowText(hwnd, title, title.Capacity);
             NativeMethods.GetWindowThreadProcessId(hwnd, out var pid);
             string process;
-            try { using var details = Process.GetProcessById((int)pid); process = details.ProcessName; }
-            catch { return true; }
+            if (!processNames.TryGetValue(pid, out process!))
+            {
+                try { using var details = Process.GetProcessById((int)pid); process = details.ProcessName; }
+                catch { return true; }
+                processNames[pid] = process;
+            }
             result.Add(new WindowEntry(hwnd, title.ToString(), process));
             return true;
         }, IntPtr.Zero);
