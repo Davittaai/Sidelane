@@ -151,6 +151,13 @@
         <CheckBox x:Name="AnimationsInput" Content="Enable subtle motion animations"/>
         <CheckBox x:Name="LockPositionInput" Content="Lock position" Margin="0,0,0,18"/>
         <Rectangle Height="1" Fill="{StaticResource Line}" Margin="0,0,0,21"/>
+        <TextBlock Text="Backup and restore" Style="{StaticResource SectionLabel}" Margin="0,0,0,6"/>
+        <TextBlock Text="Export your saved appearance and shortcuts as JSON. Temporary notes and tasks are not included. Save changes before exporting." TextWrapping="Wrap" FontSize="10.5" Foreground="{StaticResource Muted}" Margin="0,0,0,10"/>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+          <Button Content="Export settings" Click="ExportSettings_Click" Margin="0,0,8,0"/>
+          <Button Content="Import settings" Click="ImportSettings_Click"/>
+        </StackPanel>
+        <Rectangle Height="1" Fill="{StaticResource Line}" Margin="0,0,0,21"/>
         <TextBlock x:Name="AppsSection" Text="Shortcuts" Style="{StaticResource SectionLabel}" Margin="0,0,0,7"/>
         <TextBlock Text="Choose your app shortcuts. Right-click a sidebar app to set a temporary activity note." Foreground="{StaticResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,13"/>
         <ListBox x:Name="ShortcutList" Height="112" Background="#25292D" Foreground="#E7E9E7" BorderBrush="#3D4248" DisplayMemberPath="Name" SelectionChanged="ShortcutList_SelectionChanged"/>
