@@ -6,6 +6,14 @@ A lightweight, customizable Windows sidebar for people switching between AI tool
 
 **Stable release: [Sidelane v1.0.0](https://github.com/Davittaai/Sidelane/releases/tag/v1.0.0), October 20, 2026.** The Windows release passed 38 core checks, warning-free WPF compilation, a real Windows process-startup smoke test, and checksum verification. The image above is an **actual WPF application screenshot** from an isolated Windows CI desktop; it does not replace hands-on laptop QA. Real-desktop interaction and media testing remain to be documented in [Windows QA](docs/WINDOWS-QA.md).
 
+## New in the v1.2 beta
+
+The upcoming **v1.2.0-beta.1** adds three configurable panel dimensions in Preferences, a conventional per-user Windows installer with Start Menu shortcut and uninstall support, and daily official-release checks. When a newer stable installer is available, Sidelane asks permission, downloads it, verifies the SHA256 published with the release, and only then starts setup. The portable ZIP remains supported; there is no silent updater.
+
+An **optional experimental** Chrome companion is also included in the ZIP and installer. It observes only Stop-button attributes on ChatGPT, Claude and Grok pages and sends short generating/recently-stopped/unknown status signals through Chrome's native-messaging API and a same-user Windows named pipe. It does not read prompts or responses. Site compatibility needs live-browser testing, so these signals are explicitly labeled as browser observations, not guaranteed AI progress. See [companion setup](companion/README.md) and [v1.2 beta notes](docs/RELEASE-NOTES-v1.2-beta.md).
+
+**v1.0.0 remains the stable public download** until the new features pass full real-device acceptance.
+
 ## What you get
 
 - **Apps:** custom ChatGPT, Claude, Grok, Codex, VS Code or arbitrary web shortcuts, with Windows window switching when detectable.
