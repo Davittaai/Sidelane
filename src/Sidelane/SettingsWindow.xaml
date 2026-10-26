@@ -160,6 +160,11 @@
         </Grid>
         <TextBlock Text="Match window title or process" Style="{StaticResource FieldLabel}"/>
         <TextBox x:Name="MatchInput" MaxLength="100" Margin="0,0,0,11" ToolTip="Separate alternatives with |"/>
+        <TextBlock Text="AI activity provider" Style="{StaticResource FieldLabel}"/>
+        <ComboBox x:Name="StatusProviderCombo" Margin="0,0,0,9" ToolTip="Which provider should show observed browser activity? Auto matches the website.">
+          <ComboBoxItem Content="Auto"/><ComboBoxItem Content="ChatGPT"/><ComboBoxItem Content="Claude"/>
+          <ComboBoxItem Content="Grok"/><ComboBoxItem Content="None"/>
+        </ComboBox>
         <TextBlock Text="Launch behavior" Style="{StaticResource FieldLabel}"/>
         <ComboBox x:Name="LaunchModeCombo" Margin="0,0,0,10" SelectionChanged="LaunchMode_Changed">
           <ComboBoxItem Content="Auto"/>

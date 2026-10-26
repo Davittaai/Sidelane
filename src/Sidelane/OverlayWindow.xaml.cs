@@ -347,10 +347,11 @@ public partial class OverlayWindow : Window
         foreach (var item in _settings.Current.Shortcuts)
         {
             var target = _available.FirstOrDefault(w => WindowService.Matches(w, item.Match));
-            if (target is not null) visible++;
+            // Count installed apps and observed browser tabs without inventing state.
             var activity = _activities.Get(item.Name);
             var manual = activity.Status.Length > 0 ? ToStatusName(activity.Status) : null;
-            var observed = _ai.Get(item.Name);
+            var observed = _ai.Get(AiProviderPolicy.Resolve(item));
+            if (target is not null || observed.Length > 0) visible++;
             var generating = observed.StartsWith("Generating", StringComparison.Ordinal);
             var isFocused = target is not null && WindowService.IsFocused(target.Handle);
             var state = manual ?? (observed.Length > 0 ? observed : isFocused ? "In focus" :
@@ -468,8 +469,8 @@ public partial class OverlayWindow : Window
                 RailItems.Items.Add(rail);
             }
         }
-        AppsCount.Text = $"{visible} desktop";
-        StatusSummary.Text = _settings.Current.Shortcuts.Count + " shortcuts · " + _settings.Current.Shortcuts.Count(i => _ai.Get(i.Name).StartsWith("Generating", StringComparison.Ordinal)) + " working";
+        AppsCount.Text = $"{visible} open";
+        StatusSummary.Text = _settings.Current.Shortcuts.Count + " shortcuts · " + _settings.Current.Shortcuts.Count(i => _ai.Get(AiProviderPolicy.Resolve(i)).StartsWith("Generating", StringComparison.Ordinal)) + " working";
     }
 
     private static string BuildShortcutTooltip(string appName, string state, string? windowTitle, string? manualStatus)

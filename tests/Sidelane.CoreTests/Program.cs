@@ -7,6 +7,12 @@ var cases = new List<(string Name, Func<bool> Run)>
     ("native app mode accepts only existing files", () =>
         LaunchPolicy.Create(new ShortcutSettings { LaunchMode="App", AppPath=@"C:\does-not-exist-sidelane.exe" },
             _ => null) is null),
+    ("renamed ChatGPT shortcut still resolves provider by website", () =>
+        AiProviderPolicy.Resolve(new ShortcutSettings { Name = "Research tool", Url = "https://chatgpt.com" }) == "ChatGPT"),
+    ("user can explicitly disable observed activity", () =>
+        AiProviderPolicy.Resolve(new ShortcutSettings { Name = "ChatGPT", StatusProvider = "None" }) == ""),
+    ("user can link a native app to AI provider", () =>
+        AiProviderPolicy.Resolve(new ShortcutSettings { Name = "My desktop AI", StatusProvider = "Claude" }) == "Claude"),
     ("browser is explicitly selectable", () => LaunchPolicy.IsValidBrowser("Firefox") && !LaunchPolicy.IsValidBrowser("curl")),
     ("launch mode is validated", () => LaunchPolicy.IsValidMode("App") && !LaunchPolicy.IsValidMode("Powershell")),
     ("default web opens with operating system handler", () =>

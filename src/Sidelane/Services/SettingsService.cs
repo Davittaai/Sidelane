@@ -94,6 +94,7 @@ public sealed class SettingsService
                 Symbol = string.IsNullOrWhiteSpace(s.Symbol) ? "◈" : TruncateSymbols(s.Symbol),
                 Match = (s.Match ?? "")[..Math.Min((s.Match ?? "").Length, 100)],
                 Url = LinkPolicy.TryGetWebTarget(s.Url, out var uri) ? uri!.ToString() : "",
+                StatusProvider = s.StatusProvider is "Auto" or "None" or "ChatGPT" or "Claude" or "Grok" ? s.StatusProvider : "Auto",
                 LaunchMode = LaunchPolicy.IsValidMode(s.LaunchMode) ? s.LaunchMode : "Auto",
                 Browser = LaunchPolicy.IsValidBrowser(s.Browser) ? s.Browser : "Default",
                 BrowserAppWindow = s.BrowserAppWindow,

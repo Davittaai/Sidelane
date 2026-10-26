@@ -43,7 +43,7 @@ public partial class SettingsWindow : Window
         SelectCombo(EdgeCombo, s.Edge);
         _shortcuts = new ObservableCollection<ShortcutSettings>(s.Shortcuts.Select(x => new ShortcutSettings
         { Name = x.Name, Symbol = x.Symbol, Url = x.Url, Match = x.Match,
-          LaunchMode = x.LaunchMode, Browser = x.Browser, BrowserAppWindow = x.BrowserAppWindow, AppPath = x.AppPath }));
+          StatusProvider = x.StatusProvider, LaunchMode = x.LaunchMode, Browser = x.Browser, BrowserAppWindow = x.BrowserAppWindow, AppPath = x.AppPath }));
         ShortcutList.ItemsSource = _shortcuts;
         if (_shortcuts.Count > 0) ShortcutList.SelectedIndex = 0;
     }
@@ -142,6 +142,7 @@ public partial class SettingsWindow : Window
         AppPathInput.Text = selected.AppPath;
         BrowserAppWindowInput.IsChecked = selected.BrowserAppWindow;
         SelectCombo(LaunchModeCombo, selected.LaunchMode);
+        SelectCombo(StatusProviderCombo, selected.StatusProvider);
         SelectCombo(BrowserCombo, selected.Browser);
     }
 
@@ -151,6 +152,7 @@ public partial class SettingsWindow : Window
         NameInput.Clear(); SymbolInput.Text = "◈"; MatchInput.Clear(); UrlInput.Clear();
         AppPathInput.Clear(); BrowserAppWindowInput.IsChecked = false;
         SelectCombo(LaunchModeCombo, "Auto"); SelectCombo(BrowserCombo, "Default");
+        SelectCombo(StatusProviderCombo, "Auto");
         NameInput.Focus();
     }
 
@@ -180,6 +182,7 @@ public partial class SettingsWindow : Window
         { Validation.Text = "Choose a different name for this app."; return false; }
         var replacement = new ShortcutSettings { Name = name, Symbol = string.IsNullOrWhiteSpace(SymbolInput.Text) ? "◈" : SymbolInput.Text,
             Match = MatchInput.Text.Trim(), Url = url,
+            StatusProvider = (StatusProviderCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Auto",
             LaunchMode = mode, Browser = browser, BrowserAppWindow = BrowserAppWindowInput.IsChecked == true,
             AppPath = appPath };
         var index = ShortcutList.SelectedIndex;
@@ -206,6 +209,7 @@ public partial class SettingsWindow : Window
             ? NameInput.Text.Trim() != chosen.Name || SymbolInput.Text != chosen.Symbol ||
               MatchInput.Text.Trim() != chosen.Match || UrlInput.Text.Trim() != chosen.Url ||
               AppPathInput.Text.Trim() != chosen.AppPath ||
+              (StatusProviderCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() != chosen.StatusProvider ||
               (LaunchModeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() != chosen.LaunchMode ||
               (BrowserCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() != chosen.Browser ||
               (BrowserAppWindowInput.IsChecked == true) != chosen.BrowserAppWindow
@@ -237,7 +241,7 @@ public partial class SettingsWindow : Window
         s.BackgroundImage = ImagePath.Text.Trim();
         s.Shortcuts = _shortcuts.Select(x => new ShortcutSettings
         { Name = x.Name, Symbol = x.Symbol, Match = x.Match, Url = x.Url,
-          LaunchMode = x.LaunchMode, Browser = x.Browser, BrowserAppWindow = x.BrowserAppWindow,
+          StatusProvider = x.StatusProvider, LaunchMode = x.LaunchMode, Browser = x.Browser, BrowserAppWindow = x.BrowserAppWindow,
           AppPath = x.AppPath }).ToList();
         var autoStart = StartupAtLoginInput.IsChecked == true;
         var originallyEnabled = StartupService.IsEnabled();

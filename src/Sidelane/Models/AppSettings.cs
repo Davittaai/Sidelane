@@ -31,6 +31,7 @@ public sealed class ShortcutSettings
     public string Symbol { get; set; } = "◈";
     public string Url { get; set; } = "";
     public string Match { get; set; } = "";
+    public string StatusProvider { get; set; } = "Auto";
     public string LaunchMode { get; set; } = "Auto";
     public string Browser { get; set; } = "Default";
     public bool BrowserAppWindow { get; set; }
