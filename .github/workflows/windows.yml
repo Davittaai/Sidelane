@@ -68,6 +68,10 @@ jobs:
         continue-on-error: true
         shell: pwsh
         run: ./tests/windows_capture_preview.ps1 -ExePath out/Sidelane.exe
+      - name: Capture native Preferences window (best effort)
+        continue-on-error: true
+        shell: pwsh
+        run: ./tests/windows_capture_preferences.ps1 -ExePath out/Sidelane.exe
       - uses: actions/upload-artifact@v4
         if: always()
         with:

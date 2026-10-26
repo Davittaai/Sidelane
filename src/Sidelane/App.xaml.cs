@@ -53,6 +53,9 @@ public partial class App : System.Windows.Application
         _tray.DoubleClick += (_, _) => Dispatcher.Invoke(() => _overlay.ToggleVisibility());
         _tray.BalloonTipClicked += (_, _) => Dispatcher.BeginInvoke(async () => await OfferUpdateAsync());
         _ = UpdateLoopAsync();
+        // Handy for Settings shortcuts and native UI capture without simulated mouse clicks.
+        if (e.Args.Any(x => x.Equals("--preferences", StringComparison.OrdinalIgnoreCase)))
+            Dispatcher.BeginInvoke(new Action(ShowSettings));
     }
 
     private static System.Drawing.Icon TryGetAppIcon()
