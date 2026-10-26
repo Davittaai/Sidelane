@@ -45,6 +45,7 @@ public partial class SettingsWindow : Window
         LockPositionInput.IsChecked = s.Locked;
         SelectCombo(FontCombo, s.Font);
         SelectCombo(EdgeCombo, s.Edge);
+        SelectCombo(HotkeyCombo, s.Hotkey);
         _shortcuts = new ObservableCollection<ShortcutSettings>(s.Shortcuts.Select(x => new ShortcutSettings
         { Name = x.Name, Symbol = x.Symbol, Url = x.Url, Match = x.Match,
           StatusProvider = x.StatusProvider, LaunchMode = x.LaunchMode, Browser = x.Browser, BrowserAppWindow = x.BrowserAppWindow, AppPath = x.AppPath }));
@@ -297,6 +298,7 @@ public partial class SettingsWindow : Window
         s.AutoCollapse = AutoCollapseInput.IsChecked == true;
         s.RespectFullscreen = RespectFullscreenInput.IsChecked == true;
         s.StartCollapsed = StartCollapsedInput.IsChecked == true;
+        s.Hotkey = (HotkeyCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? HotkeyPolicy.Default;
         s.ShowTaskbarButton = ShowTaskbarInput.IsChecked == true;
         s.EnableAnimations = AnimationsInput.IsChecked == true;
         s.Locked = LockPositionInput.IsChecked == true;

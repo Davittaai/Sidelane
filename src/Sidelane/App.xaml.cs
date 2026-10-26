@@ -41,6 +41,7 @@ public partial class App : System.Windows.Application
         var menu = new System.Windows.Forms.ContextMenuStrip();
         menu.Items.Add("Show / hide sidebar", null, (_, _) => Dispatcher.Invoke(() => _overlay.ToggleVisibility()));
         menu.Items.Add("Settings", null, (_, _) => Dispatcher.Invoke(ShowSettings));
+        menu.Items.Add("Quick setup...", null, (_, _) => Dispatcher.Invoke(ShowSetup));
         menu.Items.Add("Check for updates", null, (_, _) => Dispatcher.Invoke(async () => await CheckForUpdatesAsync(true)));
         menu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
         menu.Items.Add("Exit Sidelane", null, (_, _) => Dispatcher.Invoke(ExitApp));
@@ -56,6 +57,10 @@ public partial class App : System.Windows.Application
         // Handy for Settings shortcuts and native UI capture without simulated mouse clicks.
         if (e.Args.Any(x => x.Equals("--preferences", StringComparison.OrdinalIgnoreCase)))
             Dispatcher.BeginInvoke(new Action(ShowSettings));
+        else if (e.Args.Any(x => x.Equals("--setup", StringComparison.OrdinalIgnoreCase)) ||
+                 (_settings.IsFreshProfile && !e.Args.Any(x =>
+                     x.Equals("--smoke-test", StringComparison.OrdinalIgnoreCase))))
+            Dispatcher.BeginInvoke(new Action(ShowSetup));
     }
 
     private static System.Drawing.Icon TryGetAppIcon()
@@ -142,6 +147,19 @@ public partial class App : System.Windows.Application
             if (interactive) System.Windows.MessageBox.Show("Could not check GitHub releases.",
                 "Sidelane updates", MessageBoxButton.OK, MessageBoxImage.Information);
         }
+    }
+
+    private void ShowSetup()
+    {
+        if (_overlay is null || _settings is null || _settingsOpen) return;
+        _settingsOpen = true;
+        _overlay.HoldExpandedForDialog(true);
+        try
+        {
+            var dialog = new SetupWindow(_settings) { Owner = _overlay };
+            if (dialog.ShowDialog() == true) _overlay.ApplyAppearance();
+        }
+        finally { _overlay.HoldExpandedForDialog(false); _settingsOpen = false; }
     }
 
     private void ShowSettings()

@@ -38,6 +38,9 @@ public partial class OverlayWindow : Window
     private readonly DispatcherTimer _focusRefresh = new() { Interval = TimeSpan.FromMilliseconds(1000) };
     private readonly DispatcherTimer _collapseDelay = new() { Interval = TimeSpan.FromMilliseconds(240) };
     private IntPtr _hwnd;
+    private bool _hotkeyRegistered;
+    private string _currentHotkey = "";
+    public string? HotkeyWarning { get; private set; }
     private bool _expanded;
     private bool _closing;
     private bool _refreshing;
@@ -82,9 +85,7 @@ public partial class OverlayWindow : Window
         _hwnd = new WindowInteropHelper(this).Handle;
         _windows.OwnHandle = _hwnd;
         HwndSource.FromHwnd(_hwnd)?.AddHook(WndProc);
-        NativeMethods.RegisterHotKey(_hwnd, NativeMethods.HOTKEY_ID,
-            NativeMethods.MOD_ALT | NativeMethods.MOD_CONTROL | NativeMethods.MOD_NOREPEAT,
-            NativeMethods.VK_SPACE);
+        RebindHotkey();
         // Do not relocate a saved secondary-monitor position back to the primary screen.
         Height = Math.Max(300, Math.Min(_settings.Current.PanelHeight, GetWorkArea().Height - 24));
         ApplyAppearance();
@@ -100,6 +101,29 @@ public partial class OverlayWindow : Window
 
     // Only change Z-order when fullscreen state changes. Continuous SetWindowPos
     // requests would steal attention from other desktop workflows.
+    private void RebindHotkey()
+    {
+        var choice = HotkeyPolicy.Normalize(_settings.Current.Hotkey);
+        if (choice == _currentHotkey && (_hotkeyRegistered || choice == "Disabled")) return;
+        if (_hotkeyRegistered)
+        {
+            NativeMethods.UnregisterHotKey(_hwnd, NativeMethods.HOTKEY_ID);
+            _hotkeyRegistered = false;
+        }
+        _currentHotkey = choice;
+        HotkeyWarning = null;
+        if (HotkeyPolicy.TryGet(choice, out var modifiers, out var key))
+        {
+            _hotkeyRegistered = NativeMethods.RegisterHotKey(_hwnd, NativeMethods.HOTKEY_ID,
+                modifiers, key);
+            if (!_hotkeyRegistered)
+            {
+                HotkeyWarning = choice + " is already reserved by another app. Choose a different shortcut in Preferences.";
+                LogoButton.ToolTip = HotkeyWarning;
+            }
+        }
+    }
+
     private void UpdateAlwaysOnTop()
     {
         if (_hwnd == IntPtr.Zero || !IsVisible) return;
@@ -141,6 +165,7 @@ public partial class OverlayWindow : Window
     {
         var s = _settings.Current;
         FontFamily = new FontFamily(s.Font);
+        if (_hwnd != IntPtr.Zero) RebindHotkey();
         SearchBoxRow.Visibility = s.Shortcuts.Count > 6 ? Visibility.Visible : Visibility.Collapsed;
         ShowInTaskbar = s.ShowTaskbarButton;
         // Opacity applies to surfaces, not labels: keep text and icons legible.
@@ -593,7 +618,7 @@ public partial class OverlayWindow : Window
     {
         _refresh.Stop(); _focusRefresh.Stop(); _collapseDelay.Stop();
         _ai.Dispose();
-        if (_hwnd != IntPtr.Zero) NativeMethods.UnregisterHotKey(_hwnd, NativeMethods.HOTKEY_ID);
+        if (_hwnd != IntPtr.Zero && _hotkeyRegistered) NativeMethods.UnregisterHotKey(_hwnd, NativeMethods.HOTKEY_ID);
         _closing = true;
         Close();
     }

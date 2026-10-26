@@ -28,6 +28,11 @@ public partial class SetupWindow : Window
             var discovered = await Task.Run(LocalAppDiscovery.FindKnownApps);
             if (!IsLoaded) return;
             _installed = discovered;
+            if (!discovered.ContainsKey("VS Code"))
+            {
+                VSCodeCheck.IsChecked = false;
+                VSCodeCheck.ToolTip = "No VS Code Start Menu shortcut found. Add it manually later in Preferences.";
+            }
             InstalledInfo.Text = discovered.Count > 0
                 ? "Found local shortcuts: " + string.Join(", ", discovered.Keys.OrderBy(x => x)) +
                     ". These will be used only if you select the option above."
