@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Sidelane AI activity (experimental)",
+  "version": "0.1.0",
+  "description": "Optional local AI generation signals. No prompt, reply or chat content collected.",
+  "permissions": [
+    "nativeMessaging"
+  ],
+  "host_permissions": [
+    "https://chatgpt.com/*",
+    "https://claude.ai/*",
+    "https://grok.com/*"
+  ],
+  "background": {
+    "service_worker": "worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://claude.ai/*",
+        "https://grok.com/*"
+      ],
+      "js": [
+        "observer.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
