@@ -77,7 +77,7 @@
               <TextBlock x:Name="AppsCount" Grid.Column="1" Text="0 open" Foreground="#848991" FontSize="11" VerticalAlignment="Center"/>
             </Grid>
             <Grid x:Name="SearchBoxRow" Margin="0,0,2,9">
-              <TextBox x:Name="SearchApps" Style="{StaticResource OverlayInput}" Height="33"
+              <TextBox x:Name="SearchApps" Style="{StaticResource OverlayInput}" KeyDown="SearchApps_KeyDown" Height="33"
                        ToolTip="Find a configured app" MaxLength="60" TextChanged="SearchApps_TextChanged"
                        AutomationProperties.Name="Filter apps"/>
               <TextBlock x:Name="SearchHint" Text="Filter apps" Foreground="#838890" FontSize="12"

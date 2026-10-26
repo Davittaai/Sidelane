@@ -166,7 +166,8 @@ public partial class OverlayWindow : Window
         var s = _settings.Current;
         FontFamily = new FontFamily(s.Font);
         if (_hwnd != IntPtr.Zero) RebindHotkey();
-        SearchBoxRow.Visibility = s.Shortcuts.Count > 6 ? Visibility.Visible : Visibility.Collapsed;
+        SearchBoxRow.Visibility = s.Shortcuts.Count > 6 || SearchApps.IsKeyboardFocusWithin || SearchApps.Text.Length > 0
+            ? Visibility.Visible : Visibility.Collapsed;
         ShowInTaskbar = s.ShowTaskbarButton;
         // Opacity applies to surfaces, not labels: keep text and icons legible.
         Surface.Opacity = 1;
@@ -270,7 +271,38 @@ public partial class OverlayWindow : Window
 
     private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
     {
-        if (e.Key == Key.Escape) { SetExpanded(false); e.Handled = true; }
+        // Slash opens a small in-rail filter even for workspaces with only a few apps.
+        if ((e.Key == Key.Oem2 || e.Key == Key.Divide) &&
+            Keyboard.Modifiers == ModifierKeys.None &&
+            e.OriginalSource is not TextBox &&
+            e.OriginalSource is not PasswordBox)
+        {
+            SetExpanded(true);
+            SearchBoxRow.Visibility = Visibility.Visible;
+            SearchApps.Focus();
+            e.Handled = true;
+            return;
+        }
+        if (e.Key != Key.Escape) return;
+        if (SearchApps.IsKeyboardFocusWithin && SearchApps.Text.Length > 0)
+        {
+            SearchApps.Clear();
+            e.Handled = true;
+            return;
+        }
+        SetExpanded(false);
+        e.Handled = true;
+    }
+
+    private void SearchApps_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter) return;
+        // Activate the first visible matching shortcut without requiring a mouse.
+        if (AppRows.Items.Count == 0 || AppRows.Items[0] is not Grid row) return;
+        var first = row.Children.OfType<Button>().FirstOrDefault();
+        if (first is null) return;
+        first.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        e.Handled = true;
     }
 
     private void Logo_Click(object sender, RoutedEventArgs e) => SetExpanded(!_expanded);
