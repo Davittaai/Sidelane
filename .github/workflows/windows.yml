@@ -45,6 +45,22 @@ jobs:
           dotnet publish src/Sidelane.NativeHost/Sidelane.NativeHost.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o native-out
           Copy-Item native-out/Sidelane.NativeHost.exe out/Sidelane.NativeHost.exe
           if (!(Test-Path out/Sidelane.NativeHost.exe)) { throw 'Native host publish failed' }
+      - name: Validate optional Chrome companion files
+        shell: pwsh
+        run: |
+          node --check companion/chrome/observer.js
+          node --check companion/chrome/worker.js
+          $manifest = Get-Content -Raw companion/chrome/manifest.json | ConvertFrom-Json
+          if ($manifest.manifest_version -ne 3) { throw "Expected a Chrome MV3 extension" }
+          foreach ($file in @("companion/Register-Bridge.ps1", "companion/Remove-Bridge.ps1", "tests/native_host_smoke.ps1")) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $file), [ref]$tokens, [ref]$errors) | Out-Null
+            if ($errors.Count -gt 0) { throw ($errors | Out-String) }
+          }
+      - name: Native host message framing smoke test
+        shell: pwsh
+        run: ./tests/native_host_smoke.ps1
       - name: Native Windows process launch smoke test
         shell: pwsh
         run: ./tests/windows_launch_smoke.ps1 -ExePath out/Sidelane.exe
