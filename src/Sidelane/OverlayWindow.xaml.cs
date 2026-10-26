@@ -373,7 +373,7 @@ public partial class OverlayWindow : Window
             var btn = new Button
             {
                 Style = (Style)FindResource("AppRowButton"),
-                Height = 39, Margin = new Thickness(0,0,0,1),
+                Height = 42, Margin = new Thickness(0,0,0,1),
                 ToolTip = BuildShortcutTooltip(item.Name, state, target?.Title, manual)
             };
             var grid = new Grid();
@@ -391,9 +391,9 @@ public partial class OverlayWindow : Window
                 }
             };
             Grid.SetColumn(ico, 0); grid.Children.Add(ico);
-            var labels = new StackPanel { Margin = new Thickness(9,2,0,0) };
+            var labels = new StackPanel { Margin = new Thickness(7,0,0,0) };
             labels.Children.Add(new TextBlock { Text = item.Name, FontWeight = FontWeights.Medium, FontSize = 12.3, Foreground = new SolidColorBrush(Color.FromRgb(236,237,235)), TextTrimming = TextTrimming.CharacterEllipsis });
-            labels.Children.Add(new TextBlock { Text = state, FontSize = 10, Foreground = new SolidColorBrush(Color.FromRgb(148,152,158)), Margin = new Thickness(0,3,0,0), TextTrimming = TextTrimming.CharacterEllipsis });
+            labels.Children.Add(new TextBlock { Text = state, FontSize = 10, Foreground = new SolidColorBrush(Color.FromRgb(148,152,158)), Margin = new Thickness(0,1,0,0), TextTrimming = TextTrimming.CharacterEllipsis });
             Grid.SetColumn(labels, 1); grid.Children.Add(labels);
             var dot = new Ellipse { Width = 6, Height = 6, Fill = dotColor, VerticalAlignment = VerticalAlignment.Center };
             if (generating)
