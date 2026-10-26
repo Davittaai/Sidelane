@@ -21,14 +21,14 @@ public static class LaunchPolicy
         // Auto mode may fall back to the website if the local app moved or was uninstalled.
         if (mode is "App" or "Auto")
         {
-            var path = shortcut.AppPath ?? "";
-            var valid = Path.IsPathFullyQualified(path) &&
-                (path.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ||
-                 path.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase)) &&
-                File.Exists(path);
+            var appTarget = shortcut.AppPath ?? "";
+            var valid = Path.IsPathFullyQualified(appTarget) &&
+                (appTarget.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ||
+                 appTarget.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase)) &&
+                File.Exists(appTarget);
             if (valid)
-                return new ProcessStartInfo(path)
-                    { UseShellExecute = path.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase) };
+                return new ProcessStartInfo(appTarget)
+                    { UseShellExecute = appTarget.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase) };
             if (mode == "App") return null;
         }
         if (!LinkPolicy.TryGetWebTarget(shortcut.Url, out var uri) || uri is null) return null;
