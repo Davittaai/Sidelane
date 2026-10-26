@@ -2,6 +2,14 @@
 
 This is a **public beta**, not a fully field-tested stable release.
 
+## Beta 2 maintenance update
+
+- Auto mode now handles missing/moved desktop app paths by safely opening the configured website; explicit App mode remains strict.
+- Custom dark surfaces now apply coherent colors to the rail, border and loading indicator, subject to readability checks.
+- Saved preferences (shortcuts, apps, themes, sizes) can be exported/imported locally after confirmation; scratchpad and activity notes are never included. Unsafe or oversized imports cannot overwrite active settings.
+- Choosing an installed app now starts browsing in the user's Start Menu shortcuts.
+- Added regression coverage: **81 core checks passed** on the reviewed engineering branch. CI must pass again on the release candidate commit.
+
 ## What's changed
 - Smaller default desktop overlay, 46px rail, 320px width, 560px height; resizable rail, width and height in Preferences.
 - Refined spacing and edge styling, searchable app slots when more than six are configured, and a visible temporary scratchpad at the compact size.
