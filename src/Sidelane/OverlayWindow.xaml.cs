@@ -317,6 +317,18 @@ public partial class OverlayWindow : Window
         finally { _refreshing = false; }
     }
 
+    private void EditActivityNote(string name)
+    {
+        var previous = _activities.Get(name).Note;
+        HoldExpandedForDialog(true);
+        string? response;
+        try { response = ActivityNoteWindow.Prompt(this, name, previous); }
+        finally { HoldExpandedForDialog(false); }
+        if (response is null) return;
+        _activities.SetNote(name, response);
+        RebuildApps();
+    }
+
     private static string ToStatusName(string value) => value switch
     {
         "working" => "Working · manual",
@@ -376,10 +388,29 @@ public partial class OverlayWindow : Window
             labels.Children.Add(new TextBlock { Text = state, FontSize = 10, Foreground = new SolidColorBrush(Color.FromRgb(148,152,158)), Margin = new Thickness(0,3,0,0), TextTrimming = TextTrimming.CharacterEllipsis });
             Grid.SetColumn(labels, 1); grid.Children.Add(labels);
             var dot = new Ellipse { Width = 6, Height = 6, Fill = dotColor, VerticalAlignment = VerticalAlignment.Center };
-            Grid.SetColumn(dot, 2); grid.Children.Add(dot);
-            if (generating && _settings.Current.EnableAnimations)
-                dot.BeginAnimation(OpacityProperty, new DoubleAnimation(.38, 1, TimeSpan.FromMilliseconds(650))
-                { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever });
+            if (generating)
+            {
+                var wave = new StackPanel { Orientation = Orientation.Horizontal,
+                    VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+                for (var i = 0; i < 3; i++)
+                {
+                    var bar = new Rectangle { Width = 2.5, Height = 12, RadiusX = 1.2, RadiusY = 1.2,
+                        Fill = AccentBrush, Margin = new Thickness(1.3, 0, 1.3, 0),
+                        RenderTransformOrigin = new System.Windows.Point(.5, .5),
+                        RenderTransform = new ScaleTransform(1, .38) };
+                    if (_settings.Current.EnableAnimations)
+                        bar.RenderTransform.BeginAnimation(ScaleTransform.ScaleYProperty,
+                            new DoubleAnimation(.3, 1, TimeSpan.FromMilliseconds(470 + i * 95))
+                            { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever });
+                    wave.Children.Add(bar);
+                }
+                Grid.SetColumn(wave, 2);
+                grid.Children.Add(wave);
+            }
+            else
+            {
+                Grid.SetColumn(dot, 2); grid.Children.Add(dot);
+            }
             btn.Content = grid;
             btn.Click += (_, _) => ActivateShortcut(item);
             var context = new ContextMenu();
@@ -391,17 +422,7 @@ public partial class OverlayWindow : Window
             }
             context.Items.Add(new Separator());
             var editNote = new MenuItem { Header = "Set activity note..." };
-            editNote.Click += (_, _) =>
-            {
-                var previous = _activities.Get(item.Name).Note;
-                HoldExpandedForDialog(true);
-                string? response;
-                try { response = ActivityNoteWindow.Prompt(this, item.Name, previous); }
-                finally { HoldExpandedForDialog(false); }
-                if (response is null) return; // cancelled
-                _activities.SetNote(item.Name, response);
-                RebuildApps();
-            };
+            editNote.Click += (_, _) => EditActivityNote(item.Name);
             context.Items.Add(editNote);
             var clearNote = new MenuItem { Header = "Clear activity note", IsEnabled = activity.Note.Length > 0 };
             clearNote.Click += (_, _) => { _activities.SetNote(item.Name, ""); RebuildApps(); };
@@ -409,7 +430,28 @@ public partial class OverlayWindow : Window
             btn.ContextMenu = context;
             if (filter.Length == 0 || item.Name.Contains(filter, StringComparison.OrdinalIgnoreCase) ||
                 state.Contains(filter, StringComparison.OrdinalIgnoreCase))
-                AppRows.Items.Add(btn);
+            {
+                var row = new Grid();
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                Grid.SetColumn(btn, 0);
+                row.Children.Add(btn);
+                var noteButton = new Button
+                {
+                    Content = "✎",
+                    ToolTip = "Set what " + item.Name + " is working on (manual note)",
+                    Style = (Style)FindResource("IconButton"),
+                    Width = 25,
+                    Height = 31,
+                    FontSize = 13,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(0, 0, 2, 0)
+                };
+                noteButton.Click += (_, _) => EditActivityNote(item.Name);
+                Grid.SetColumn(noteButton, 1);
+                row.Children.Add(noteButton);
+                AppRows.Items.Add(row);
+            }
 
             if (RailItems.Items.Count < 6)
             {
