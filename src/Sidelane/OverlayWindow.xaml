@@ -90,7 +90,7 @@
               <TextBlock Text="Listening" FontSize="13" FontWeight="SemiBold" Foreground="#E7E7E5"/>
               <TextBlock x:Name="MediaProvider" Grid.Column="1" Text="System media" FontSize="10" Foreground="#80858E" VerticalAlignment="Center"/>
             </Grid>
-            <Border CornerRadius="11" Background="#25282D" BorderBrush="#363A40" BorderThickness="1" Padding="10,10,8,10">
+            <Border x:Name="MediaCard" CornerRadius="11" Background="#25282D" BorderBrush="#363A40" BorderThickness="1" Padding="10,10,8,10">
               <Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="30"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <Border Width="28" Height="28" CornerRadius="7" Background="#343940" VerticalAlignment="Center">

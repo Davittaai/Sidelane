@@ -53,6 +53,8 @@ public partial class App : System.Windows.Application
         };
         _tray.DoubleClick += (_, _) => Dispatcher.Invoke(() => _overlay.ToggleVisibility());
         _tray.BalloonTipClicked += (_, _) => Dispatcher.BeginInvoke(async () => await OfferUpdateAsync());
+        if (_overlay.HotkeyWarning is string warning)
+            _tray.ShowBalloonTip(6500, "Shortcut not registered", warning, System.Windows.Forms.ToolTipIcon.Warning);
         _ = UpdateLoopAsync();
         // Handy for Settings shortcuts and native UI capture without simulated mouse clicks.
         if (e.Args.Any(x => x.Equals("--preferences", StringComparison.OrdinalIgnoreCase)))
@@ -152,6 +154,9 @@ public partial class App : System.Windows.Application
     private void ShowSetup()
     {
         if (_overlay is null || _settings is null || _settingsOpen) return;
+        if (!_settings.IsFreshProfile && System.Windows.MessageBox.Show(
+            "Quick setup can replace your configured shortcuts and colors. Continue? You can export a backup first in Preferences.",
+            "Reconfigure workspace", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
         _settingsOpen = true;
         _overlay.HoldExpandedForDialog(true);
         try
@@ -171,7 +176,12 @@ public partial class App : System.Windows.Application
         try
         {
             var dialog = new SettingsWindow(_settings) { Owner = _overlay };
-            if (dialog.ShowDialog() == true) _overlay.ApplyAppearance();
+            if (dialog.ShowDialog() == true)
+            {
+                _overlay.ApplyAppearance();
+                if (_overlay.HotkeyWarning is string warning)
+                    System.Windows.MessageBox.Show(warning, "Sidelane shortcut", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
         finally { _overlay.HoldExpandedForDialog(false); _settingsOpen = false; }
     }

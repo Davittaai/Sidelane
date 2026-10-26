@@ -178,6 +178,9 @@ public partial class OverlayWindow : Window
             ThemePalettePolicy.Divider(s.Background)));
         RailArea.BorderBrush = divider;
         Surface.BorderBrush = divider;
+        MediaCard.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(
+            ThemePalettePolicy.Blend(s.Background, "#FFFFFF", .075)));
+        MediaCard.BorderBrush = divider;
         LoadingBar.Foreground = AccentBrush;
         var wallpaper = BackgroundImagePolicy.TryCreateBrush(s.BackgroundImage);
         // Optional wallpaper should never compete with content readability.

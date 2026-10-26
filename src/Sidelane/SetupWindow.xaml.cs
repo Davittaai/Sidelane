@@ -31,6 +31,7 @@ public partial class SetupWindow : Window
             if (!discovered.ContainsKey("VS Code"))
             {
                 VSCodeCheck.IsChecked = false;
+                VSCodeCheck.IsEnabled = false;
                 VSCodeCheck.ToolTip = "No VS Code Start Menu shortcut found. Add it manually later in Preferences.";
             }
             InstalledInfo.Text = discovered.Count > 0

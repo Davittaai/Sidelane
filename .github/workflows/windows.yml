@@ -72,6 +72,10 @@ jobs:
         continue-on-error: true
         shell: pwsh
         run: ./tests/windows_capture_preferences.ps1 -ExePath out/Sidelane.exe
+      - name: Capture v2 first-run setup (best effort)
+        continue-on-error: true
+        shell: pwsh
+        run: ./tests/windows_capture_setup.ps1 -ExePath out/Sidelane.exe
       - uses: actions/upload-artifact@v4
         if: always()
         with:
