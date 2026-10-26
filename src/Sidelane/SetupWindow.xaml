@@ -42,7 +42,7 @@
    <Grid>
     <Grid.ColumnDefinitions><ColumnDefinition Width="55"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
     <Border Width="44" Height="44" CornerRadius="12" Background="#2B4237" VerticalAlignment="Top">
-     <Image Source="pack://application:,,,/Assets/sidelane.ico" Width="36" Height="36" Stretch="Uniform"/>
+     <Image Source="pack://application:,,,/Assets/sidelane-app-icon.png" Width="36" Height="36" Stretch="Uniform"/>
     </Border>
     <StackPanel Grid.Column="1">
      <TextBlock Text="Build your workspace" Foreground="#F1F6F2" FontWeight="SemiBold" FontSize="24"/>

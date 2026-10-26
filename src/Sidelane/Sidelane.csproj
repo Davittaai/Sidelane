@@ -13,5 +13,7 @@
     <Platforms>x64</Platforms>
     <PublishReadyToRun>false</PublishReadyToRun>
   </PropertyGroup>
-  <ItemGroup><Resource Include="Assets\\sidelane.ico" /></ItemGroup>
+  <ItemGroup><Resource Include="Assets\\sidelane.ico" />
+    <Resource Include="../../docs/sidelane-app-icon.png" Link="Assets/sidelane-app-icon.png" />
+  </ItemGroup>
 </Project>

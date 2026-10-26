@@ -28,7 +28,7 @@
             <Button x:Name="LogoButton" Click="Logo_Click" Style="{StaticResource IconButton}" ToolTip="Expand or collapse Sidelane"
                     Width="36" Height="36" Padding="2" Margin="0,0,0,14">
               <Border CornerRadius="9" Width="30" Height="30" Background="Transparent">
-                <Image Source="pack://application:,,,/Assets/sidelane.ico" Width="30" Height="30" Stretch="Uniform"/>
+                <Image Source="pack://application:,,,/Assets/sidelane-app-icon.png" Width="30" Height="30" Stretch="Uniform"/>
               </Border>
             </Button>
             <ItemsControl x:Name="RailItems"/>
