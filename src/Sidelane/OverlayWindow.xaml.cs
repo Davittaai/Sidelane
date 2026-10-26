@@ -390,11 +390,12 @@ public partial class OverlayWindow : Window
             var dot = new Ellipse { Width = 6, Height = 6, Fill = dotColor, VerticalAlignment = VerticalAlignment.Center };
             if (generating)
             {
-                var wave = new StackPanel { Orientation = Orientation.Horizontal,
-                    VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+                var wave = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal,
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Center };
                 for (var i = 0; i < 3; i++)
                 {
-                    var bar = new Rectangle { Width = 2.5, Height = 12, RadiusX = 1.2, RadiusY = 1.2,
+                    var bar = new System.Windows.Shapes.Rectangle { Width = 2.5, Height = 12, RadiusX = 1.2, RadiusY = 1.2,
                         Fill = AccentBrush, Margin = new Thickness(1.3, 0, 1.3, 0),
                         RenderTransformOrigin = new System.Windows.Point(.5, .5),
                         RenderTransform = new ScaleTransform(1, .38) };

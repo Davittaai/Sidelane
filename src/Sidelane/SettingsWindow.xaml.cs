@@ -90,6 +90,9 @@ public partial class SettingsWindow : Window
         var value = SettingsService.ValidColor(AccentInput.Text, "");
         if (value.Length == 7)
             AccentPreview.Fill = new SolidColorBrush((MediaColor)System.Windows.Media.ColorConverter.ConvertFromString(value));
+        var background = SettingsService.ValidColor(BackgroundInput?.Text, "");
+        if (ThemePreview is not null && background.Length == 7 && ThemeContrastPolicy.SupportsDarkUi(background))
+            ThemePreview.Background = new SolidColorBrush((MediaColor)System.Windows.Media.ColorConverter.ConvertFromString(background));
     }
 
     private void PickAccent_Click(object sender, RoutedEventArgs e) => PickColor(AccentInput);
