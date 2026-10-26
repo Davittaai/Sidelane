@@ -25,8 +25,8 @@ namespace Sidelane;
 
 public partial class OverlayWindow : Window
 {
-    private const double RailWidth = ScreenPlacement.RailWidth;
-    private const double ExpandedWidth = ScreenPlacement.ExpandedWidth;
+    private double RailWidth => _settings.Current.RailWidth;
+    private double ExpandedWidth => _settings.Current.PanelWidth;
     private readonly SettingsService _settings;
     private readonly WindowService _windows = new();
     private readonly MediaService _media = new();
@@ -83,7 +83,7 @@ public partial class OverlayWindow : Window
             NativeMethods.MOD_ALT | NativeMethods.MOD_CONTROL | NativeMethods.MOD_NOREPEAT,
             NativeMethods.VK_SPACE);
         // Do not relocate a saved secondary-monitor position back to the primary screen.
-        Height = Math.Max(300, Math.Min(724, GetWorkArea().Height - 24));
+        Height = Math.Max(300, Math.Min(_settings.Current.PanelHeight, GetWorkArea().Height - 24));
         ApplyAppearance();
         SetExpanded(!_settings.Current.StartCollapsed);
         _refresh.Start();
@@ -149,7 +149,8 @@ public partial class OverlayWindow : Window
         if (LogoButton.Content is Border b) b.Background = AccentBrush;
         PinButton.Foreground = s.Locked ? AccentBrush : new SolidColorBrush(Color.FromRgb(160,170,187));
         var work = GetWorkArea();
-        s.Left = ScreenPlacement.EdgeRailLeft(s.Edge, s.Left, work.Left, work.Right);
+        Height = Math.Max(300, Math.Min(s.PanelHeight, work.Height - 24));
+        s.Left = ScreenPlacement.EdgeRailLeft(s.Edge, s.Left, work.Left, work.Right, railWidth: RailWidth);
         SetExpanded(_expanded);
         _lastFullscreen = null;
         UpdateAlwaysOnTop();
@@ -162,8 +163,9 @@ public partial class OverlayWindow : Window
         var settings = _settings.Current;
         var area = GetWorkArea();
         if (settings.Edge == "Free")
-            settings.RailOnRight = ScreenPlacement.RailOnRightForFree(settings.Left, area.Left, area.Right);
+            settings.RailOnRight = ScreenPlacement.RailOnRightForFree(settings.Left, area.Left, area.Right, RailWidth, ExpandedWidth);
         var railOnRight = expand && settings.RailOnRight;
+        RailArea.Width = RailWidth;
         FirstColumn.Width = new GridLength(railOnRight ? ExpandedWidth - RailWidth : RailWidth);
         SecondColumn.Width = new GridLength(railOnRight ? RailWidth : ExpandedWidth - RailWidth);
         Grid.SetColumn(RailArea, railOnRight ? 1 : 0);
@@ -171,9 +173,9 @@ public partial class OverlayWindow : Window
         Width = expand ? ExpandedWidth : RailWidth;
         // Keep the 54px rail anchored to the same screen coordinate in both modes.
         var railLeft = ScreenPlacement.EdgeRailLeft(_settings.Current.Edge, _settings.Current.Left,
-            area.Left, area.Right);
+            area.Left, area.Right, railWidth: RailWidth);
         Left = ScreenPlacement.WindowLeft(railLeft, expand, _settings.Current.RailOnRight,
-            area.Left, area.Right);
+            area.Left, area.Right, railWidth: RailWidth, expandedWidth: ExpandedWidth);
         Top = ScreenPlacement.WindowTop(_settings.Current.Top, Height, area.Top, area.Bottom);
         ExpandedPane.Visibility = expand ? Visibility.Visible : Visibility.Collapsed;
         LogoButton.ToolTip = expand ? "Collapse" : "Expand";

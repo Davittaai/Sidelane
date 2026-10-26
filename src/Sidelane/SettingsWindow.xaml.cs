@@ -25,6 +25,9 @@ public partial class SettingsWindow : Window
         BackgroundInput.Text = s.Background;
         ImagePath.Text = s.BackgroundImage;
         OpacityInput.Value = s.Opacity;
+        RailWidthInput.Value = s.RailWidth;
+        PanelWidthInput.Value = s.PanelWidth;
+        PanelHeightInput.Value = s.PanelHeight;
         AutoCollapseInput.IsChecked = s.AutoCollapse;
         RespectFullscreenInput.IsChecked = s.RespectFullscreen;
         StartupAtLoginInput.IsChecked = StartupService.IsEnabled();
@@ -44,6 +47,20 @@ public partial class SettingsWindow : Window
             if (string.Equals(item.Content?.ToString(), value, StringComparison.OrdinalIgnoreCase))
             { box.SelectedItem = item; return; }
         box.SelectedIndex = 0;
+    }
+
+    private void Size_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (RailWidthValue is not null) RailWidthValue.Text = $"{RailWidthInput.Value:0} px";
+        if (PanelWidthValue is not null) PanelWidthValue.Text = $"{PanelWidthInput.Value:0} px";
+        if (PanelHeightValue is not null) PanelHeightValue.Text = $"{PanelHeightInput.Value:0} px";
+    }
+
+    private void ResetSize_Click(object sender, RoutedEventArgs e)
+    {
+        RailWidthInput.Value = ScreenPlacement.RailWidth;
+        PanelWidthInput.Value = ScreenPlacement.ExpandedWidth;
+        PanelHeightInput.Value = 724;
     }
 
     private void Opacity_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -133,6 +150,9 @@ public partial class SettingsWindow : Window
         s.Background = validBackground;
         s.Font = (FontCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Segoe UI";
         s.Edge = (EdgeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Left";
+        s.RailWidth = RailWidthInput.Value;
+        s.PanelWidth = PanelWidthInput.Value;
+        s.PanelHeight = PanelHeightInput.Value;
         s.Opacity = OpacityInput.Value;
         s.AutoCollapse = AutoCollapseInput.IsChecked == true;
         s.RespectFullscreen = RespectFullscreenInput.IsChecked == true;

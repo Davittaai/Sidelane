@@ -12,6 +12,9 @@ public sealed class AppSettings
     public string Edge { get; set; } = "Left";
     // Remembers which side of the panel holds the rail when dragged to a free position.
     public bool RailOnRight { get; set; }
+    public double RailWidth { get; set; } = 54;
+    public double PanelWidth { get; set; } = 360;
+    public double PanelHeight { get; set; } = 724;
     public double Opacity { get; set; } = 1.0;
     public string Accent { get; set; } = "#B9D8BF";
     public string Background { get; set; } = "#191C20";

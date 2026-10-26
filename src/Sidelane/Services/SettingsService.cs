@@ -73,6 +73,9 @@ public sealed class SettingsService
         if (settings.Edge == "Right") settings.RailOnRight = true;
         else if (settings.Edge == "Left") settings.RailOnRight = false;
         settings.Opacity = double.IsFinite(settings.Opacity) ? Math.Clamp(settings.Opacity, .65, 1) : 1.0;
+        settings.RailWidth = ScreenPlacement.NormalizeRailWidth(settings.RailWidth);
+        settings.PanelWidth = ScreenPlacement.NormalizePanelWidth(settings.PanelWidth, settings.RailWidth);
+        settings.PanelHeight = ScreenPlacement.NormalizePanelHeight(settings.PanelHeight);
         settings.Left = double.IsFinite(settings.Left) ? settings.Left : 28;
         settings.Top = double.IsFinite(settings.Top) ? settings.Top : 100;
         settings.Accent = ValidColor(settings.Accent, "#B9D8BF");

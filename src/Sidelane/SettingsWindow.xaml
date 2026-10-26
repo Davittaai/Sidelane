@@ -102,6 +102,28 @@
         </Grid>
         <Slider x:Name="OpacityInput" Minimum="0.65" Maximum="1" TickFrequency="0.05" ValueChanged="Opacity_Changed" Margin="0,0,0,18"/>
         <Rectangle Height="1" Fill="{StaticResource Line}" Margin="0,0,0,21"/>
+        <Grid Margin="0,4,0,10">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+          <TextBlock Text="Sidebar dimensions" Style="{StaticResource SectionLabel}" Margin="0"/>
+          <Button Grid.Column="1" Content="Reset size" Click="ResetSize_Click" Padding="9,4"/>
+        </Grid>
+        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+          <TextBlock Text="Collapsed rail width" Style="{StaticResource FieldLabel}"/>
+          <TextBlock x:Name="RailWidthValue" Grid.Column="1" Foreground="{StaticResource Muted}"/>
+        </Grid>
+        <Slider x:Name="RailWidthInput" Minimum="54" Maximum="76" TickFrequency="2" IsSnapToTickEnabled="True" ValueChanged="Size_Changed" Margin="0,0,0,12"/>
+        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+          <TextBlock Text="Expanded width" Style="{StaticResource FieldLabel}"/>
+          <TextBlock x:Name="PanelWidthValue" Grid.Column="1" Foreground="{StaticResource Muted}"/>
+        </Grid>
+        <Slider x:Name="PanelWidthInput" Minimum="340" Maximum="520" TickFrequency="10" IsSnapToTickEnabled="True" ValueChanged="Size_Changed" Margin="0,0,0,12"/>
+        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+          <TextBlock Text="Panel height" Style="{StaticResource FieldLabel}"/>
+          <TextBlock x:Name="PanelHeightValue" Grid.Column="1" Foreground="{StaticResource Muted}"/>
+        </Grid>
+        <Slider x:Name="PanelHeightInput" Minimum="420" Maximum="900" TickFrequency="20" IsSnapToTickEnabled="True" ValueChanged="Size_Changed" Margin="0,0,0,8"/>
+        <TextBlock Text="Dimensions use Windows display-independent pixels; height fits the monitor." TextWrapping="Wrap" Foreground="{StaticResource Muted}" FontSize="10.5" Margin="0,0,0,21"/>
+        <Rectangle Height="1" Fill="{StaticResource Line}" Margin="0,0,0,21"/>
         <TextBlock Text="Behavior" Style="{StaticResource SectionLabel}"/>
         <TextBlock Text="Position" Style="{StaticResource FieldLabel}"/>
         <ComboBox x:Name="EdgeCombo" Margin="0,0,0,18">
