@@ -62,7 +62,7 @@
    </Grid>
   </Border>
   <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-   <StackPanel Margin="27,21,27,20">
+   <StackPanel Margin="27,16,27,12">
     <Grid Margin="0,0,0,9">
      <TextBlock Text="01  YOUR TOOLS" Foreground="#82A894" FontWeight="Bold" FontSize="10" VerticalAlignment="Center"/>
      <TextBlock Text="Choose what appears on the rail" HorizontalAlignment="Right" Foreground="#9DACAA" FontSize="11"/>
@@ -82,7 +82,7 @@
       </StackPanel>
      </Grid>
     </Border>
-    <TextBlock Text="02  HOW TO OPEN THEM" Foreground="#82A894" FontWeight="Bold" FontSize="10" Margin="0,23,0,10"/>
+    <TextBlock Text="02  HOW TO OPEN THEM" Foreground="#82A894" FontWeight="Bold" FontSize="10" Margin="0,17,0,9"/>
     <Border Padding="18,15" Background="#22282D" CornerRadius="13" BorderBrush="#373F43" BorderThickness="1">
      <StackPanel>
       <Grid Margin="0,0,0,8">
@@ -98,7 +98,7 @@
        Text="Checking Windows Start Menu for matching shortcuts. No program will be launched."/>
      </StackPanel>
     </Border>
-    <TextBlock Text="03  MAKE IT YOURS" Foreground="#82A894" FontWeight="Bold" FontSize="10" Margin="0,23,0,10"/>
+    <TextBlock Text="03  MAKE IT YOURS" Foreground="#82A894" FontWeight="Bold" FontSize="10" Margin="0,17,0,9"/>
     <Border Padding="18,15" Background="#22282D" CornerRadius="13" BorderBrush="#373F43" BorderThickness="1">
      <StackPanel>
       <TextBlock Text="Color scheme" Style="{StaticResource Section}" Margin="0,0,0,8"/>
@@ -112,7 +112,7 @@
      </StackPanel>
     </Border>
     <TextBlock Text="You can edit every shortcut, size and appearance setting later in Preferences." Foreground="#97A8A0"
-     TextWrapping="Wrap" FontSize="11" Margin="2,17,0,0"/>
+     TextWrapping="Wrap" FontSize="11" Margin="2,10,0,0"/>
    </StackPanel>
   </ScrollViewer>
  </DockPanel>
