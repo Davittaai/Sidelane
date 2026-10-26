@@ -43,4 +43,5 @@ Name: "{userdesktop}\Sidelane"; Filename: "{app}\Sidelane.exe"; Tasks: desktopic
 Filename: "{app}\Sidelane.exe"; Description: "Launch Sidelane"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
+Filename: "{cmd}"; Parameters: "/C reg delete HKCU\Software\Google\Chrome\NativeMessagingHosts\com.sidelane.activity /f"; Flags: runhidden
 Filename: "{cmd}"; Parameters: "/C reg delete HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v Sidelane /f"; Flags: runhidden

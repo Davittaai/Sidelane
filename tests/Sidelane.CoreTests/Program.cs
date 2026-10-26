@@ -14,6 +14,11 @@ var cases = new List<(string Name, Func<bool> Run)>
         ScreenPlacement.EdgeRailLeft("Right", 0, 0, 1920, railWidth: 72) == 1836),
     ("custom expanded size stays anchored", () =>
         ScreenPlacement.WindowLeft(1836, true, true, 0, 1920, railWidth: 72, expandedWidth: 480) == 1428),
+    ("AI signal explicitly marks stopped, not completed", () =>
+        AiSignalPolicy.Parse("{\"provider\":\"Claude\",\"state\":\"stopped\"}") is { State: "stopped" }),
+    ("AI signal denies transcript-bearing extras by length", () =>
+        AiSignalPolicy.Parse("{\"provider\":\"Grok\",\"state\":\"generating\",\"prompt\":\"" +
+            new string('p', 300) + "\"}") is null),
     ("AI signal accepts only known providers and states", () =>
         AiSignalPolicy.Parse("{\"provider\":\"ChatGPT\",\"state\":\"generating\"}") is { Provider: "ChatGPT" }),
     ("AI signal refuses invalid browser payload", () =>

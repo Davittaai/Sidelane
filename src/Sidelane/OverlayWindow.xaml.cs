@@ -268,7 +268,7 @@ public partial class OverlayWindow : Window
                 _available = current;
                 RebuildApps();
             }
-            if (_ai.WasUsed) RebuildApps(); // expire short-lived browser signals
+            if (_ai.PruneExpired()) RebuildApps(); // update once when a signal expires
             var media = await _media.ReadAsync();
             if (_closing) return;
             SongTitle.Text = media.Title;
