@@ -1,6 +1,6 @@
 # Sidelane product completion plan
 
-Status: **v1.0.0 public release, v1.1 beta available; final physical Windows acceptance pending** (2026-10-22).
+Status: **v1.0.0 stable, v1.2.0-beta.1 engineering preview published; real-device acceptance pending** (2026-10-26).
 
 ## Product definition
 
@@ -60,3 +60,14 @@ Automated CI success means the binary **builds and starts on GitHub Windows**, n
 - To use it on a physical Windows device: `pwsh -File tests/windows_local_acceptance.ps1 -ExePath ./release/Sidelane.exe -IdleSeconds 300` from the project directory (or supply the actual extracted EXE path). Review the JSON in `qa-local/`; do not commit the report without inspecting it.
 - **Release blockers remain:** genuine manual 100/125/150% DPI, second monitor/fullscreen, keyboard and media QA, privacy verification with file/network inspection, real WPF screenshots, and clean-machine install/SmartScreen experience.
 - Stable v1.1 promotion must not occur solely because CI is green. The existing v1.1 beta is the testing candidate.
+
+## October 26 engineering milestone
+
+- [x] Configurable rail width 54–76 DIP, panel width 340–520 DIP and height 420–900 DIP; normalized settings.
+- [x] Per-user Windows installer/uninstaller, verified by hosted Windows install/uninstall smoke.
+- [x] Daily stable-release checks and user-approved installer download with SHA256 verification against official GitHub release.
+- [x] Optional Chrome native messaging companion for ChatGPT, Claude and Grok with sender checks, strict state-only payload schema and same-user named-pipe IPC.
+- [x] Optimize wallpaper decode/cache, process enumeration and redundant browser status rebuilds; no private browser tab title in tooltips.
+- [x] Publish [v1.2.0-beta.1](https://github.com/Davittaai/Sidelane/releases/tag/v1.2.0-beta.1) from [56-test Windows CI](https://github.com/Davittaai/Sidelane/actions/runs/40290976240).
+- [ ] Confirm live Chrome provider detection on all three sites, actual user's mixed-DPI Windows acceptance, idle RAM/CPU, and an end-to-end newer-stable-update installation.
+**Beta is not the same as complete stable release.**

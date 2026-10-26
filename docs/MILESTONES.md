@@ -1,6 +1,6 @@
 # Sidelane milestones
 
-Updated: 2026-10-20
+Updated: 2026-10-26
 
 ## M0: Publish source and make contributions reproducible
 
@@ -35,6 +35,10 @@ Prototype an optional browser companion that sends only explicit state indicator
 ## M4: Public portfolio readiness
 
 Add genuine Windows application screenshots, one short demonstration video, first-time setup experience, reproducible builds, and a simple issue template for bug reports. Measure cold-start latency and idle RAM/CPU on a low-powered Windows laptop.
+
+## M5: Installer, resizing, update service, optional Chrome bridge
+
+**Engineering beta published:** [v1.2.0-beta.1](https://github.com/Davittaai/Sidelane/releases/tag/v1.2.0-beta.1). Rail/panel dimensions, Inno setup/uninstall, verified user-consent update downloads, and opt-in native Chrome bridge implemented. The selected Windows CI passed **56 core tests**, native host protocol checks and installer smoke. See [issue #7](https://github.com/Davittaai/Sidelane/issues/7). Provider-specific live-browser detection, physical Windows QA, and end-to-end update acceptance remain unverified.
 
 ## Product constraints
 
