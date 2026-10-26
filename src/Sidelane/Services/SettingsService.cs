@@ -93,7 +93,12 @@ public sealed class SettingsService
                 Name = s.Name.Trim()[..Math.Min(s.Name.Trim().Length, 28)],
                 Symbol = string.IsNullOrWhiteSpace(s.Symbol) ? "◈" : TruncateSymbols(s.Symbol),
                 Match = (s.Match ?? "")[..Math.Min((s.Match ?? "").Length, 100)],
-                Url = LinkPolicy.TryGetWebTarget(s.Url, out var uri) ? uri!.ToString() : ""
+                Url = LinkPolicy.TryGetWebTarget(s.Url, out var uri) ? uri!.ToString() : "",
+                LaunchMode = LaunchPolicy.IsValidMode(s.LaunchMode) ? s.LaunchMode : "Auto",
+                Browser = LaunchPolicy.IsValidBrowser(s.Browser) ? s.Browser : "Default",
+                BrowserAppWindow = s.BrowserAppWindow,
+                AppPath = (s.AppPath ?? "").Length <= 1024 && System.IO.Path.IsPathFullyQualified(s.AppPath ?? "") &&
+                    (s.AppPath ?? "").EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? s.AppPath : ""
             })
             .Where(s => names.Add(s.Name))
             .Take(12).ToList();
