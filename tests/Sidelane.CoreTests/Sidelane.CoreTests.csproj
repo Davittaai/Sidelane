@@ -15,5 +15,6 @@
     <Compile Include="../../src/Sidelane/Services/SessionActivityStore.cs" Link="SessionActivityStore.cs"/>
     <Compile Include="../../src/Sidelane/Services/AiSignalPolicy.cs" Link="AiSignalPolicy.cs"/>
     <Compile Include="../../src/Sidelane/Services/UpdateService.cs" Link="UpdateService.cs"/>
+    <Compile Include="../../src/Sidelane/Services/LaunchPolicy.cs" Link="LaunchPolicy.cs"/>
   </ItemGroup>
 </Project>
