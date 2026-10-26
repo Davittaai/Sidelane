@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Interop;
 using Microsoft.Win32;
 using Sidelane.Models;
 using Sidelane.Services;
@@ -24,6 +25,7 @@ public partial class SettingsWindow : Window
     {
         _settings = settings;
         InitializeComponent();
+        SourceInitialized += (_, _) => WindowThemeService.RequestDarkTitleBar(new WindowInteropHelper(this).Handle);
         var s = settings.Current;
         AccentInput.Text = s.Accent;
         BackgroundInput.Text = s.Background;
@@ -47,6 +49,10 @@ public partial class SettingsWindow : Window
         ShortcutList.ItemsSource = _shortcuts;
         if (_shortcuts.Count > 0) ShortcutList.SelectedIndex = 0;
     }
+
+    private void AppearanceNav_Click(object sender, RoutedEventArgs e) => AppearanceSection.BringIntoView();
+    private void LayoutNav_Click(object sender, RoutedEventArgs e) => LayoutSection.BringIntoView();
+    private void AppsNav_Click(object sender, RoutedEventArgs e) => AppsSection.BringIntoView();
 
     private static void SelectCombo(ComboBox box, string value)
     {

@@ -54,6 +54,13 @@
         <TextBlock Text="Compact, personal, and out of your way." Foreground="{StaticResource Muted}" FontSize="12" Margin="0,5,0,0"/>
       </StackPanel>
     </Border>
+    <Border DockPanel.Dock="Top" Background="#1B1E22" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" Padding="24,6">
+      <UniformGrid Columns="3">
+        <Button Content="Appearance" Click="AppearanceNav_Click" Margin="0,0,6,0"/>
+        <Button Content="Layout" Click="LayoutNav_Click" Margin="0,0,6,0"/>
+        <Button Content="Apps" Click="AppsNav_Click"/>
+      </UniformGrid>
+    </Border>
     <Border DockPanel.Dock="Bottom" Background="#1B1E22" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="23,12">
       <Grid>
         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
@@ -62,9 +69,9 @@
         <Button Grid.Column="2" Content="Save changes" Click="Save_Click" Background="#B9D8BF" BorderBrush="#B9D8BF" Foreground="#1A2720" FontWeight="SemiBold"/>
       </Grid>
     </Border>
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <ScrollViewer x:Name="PreferencesScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
       <StackPanel Margin="22,18,22,18">
-        <TextBlock Text="Appearance" Style="{StaticResource SectionLabel}"/>
+        <TextBlock x:Name="AppearanceSection" Text="Appearance" Style="{StaticResource SectionLabel}"/>
         <TextBlock Text="Color themes" Style="{StaticResource FieldLabel}"/>
         <UniformGrid Columns="4" Margin="0,0,0,12">
           <Button Content="Sage" Tag="#B9D8BF|#191C20" Background="#304A3D" BorderBrush="#52705E" Margin="0,0,7,0" Click="Palette_Click"/>
@@ -111,7 +118,7 @@
         <Rectangle Height="1" Fill="{StaticResource Line}" Margin="0,0,0,21"/>
         <Grid Margin="0,4,0,10">
           <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-          <TextBlock Text="Sidebar dimensions" Style="{StaticResource SectionLabel}" Margin="0"/>
+          <TextBlock x:Name="LayoutSection" Text="Sidebar dimensions" Style="{StaticResource SectionLabel}" Margin="0"/>
           <Button Grid.Column="1" Content="Reset size" Click="ResetSize_Click" Padding="9,4"/>
         </Grid>
         <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
@@ -144,7 +151,7 @@
         <CheckBox x:Name="AnimationsInput" Content="Enable subtle motion animations"/>
         <CheckBox x:Name="LockPositionInput" Content="Lock position" Margin="0,0,0,18"/>
         <Rectangle Height="1" Fill="{StaticResource Line}" Margin="0,0,0,21"/>
-        <TextBlock Text="Shortcuts" Style="{StaticResource SectionLabel}" Margin="0,0,0,7"/>
+        <TextBlock x:Name="AppsSection" Text="Shortcuts" Style="{StaticResource SectionLabel}" Margin="0,0,0,7"/>
         <TextBlock Text="Choose your app shortcuts. Right-click a sidebar app to set a temporary activity note." Foreground="{StaticResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,13"/>
         <ListBox x:Name="ShortcutList" Height="112" Background="#25292D" Foreground="#E7E9E7" BorderBrush="#3D4248" DisplayMemberPath="Name" SelectionChanged="ShortcutList_SelectionChanged"/>
         <Grid Margin="0,12,0,10">
