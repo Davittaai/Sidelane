@@ -153,7 +153,7 @@ public partial class OverlayWindow : Window
         if (wallpaper is not null) wallpaper.Opacity = 0.13;
         WallPaperLayer.Background = (Brush?)wallpaper ?? Brushes.Transparent;
         PrivacyDot.Fill = AccentBrush;
-        if (LogoButton.Content is Border b) b.Background = AccentBrush;
+        // The branded icon keeps its own colors independently of the selected accent.
         PinButton.Foreground = s.Locked ? AccentBrush : new SolidColorBrush(Color.FromRgb(160,170,187));
         var work = GetWorkArea();
         Height = Math.Max(300, Math.Min(s.PanelHeight, work.Height - 24));

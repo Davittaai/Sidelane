@@ -13,4 +13,5 @@
     <Platforms>x64</Platforms>
     <PublishReadyToRun>false</PublishReadyToRun>
   </PropertyGroup>
+  <ItemGroup><Resource Include="Assets\\sidelane.ico" /></ItemGroup>
 </Project>
