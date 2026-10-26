@@ -4,6 +4,9 @@ using Sidelane.Services;
 
 var cases = new List<(string Name, Func<bool> Run)>
 {
+    ("native app mode accepts only existing files", () =>
+        LaunchPolicy.Create(new ShortcutSettings { LaunchMode="App", AppPath=@"C:\does-not-exist-sidelane.exe" },
+            _ => null) is null),
     ("browser is explicitly selectable", () => LaunchPolicy.IsValidBrowser("Firefox") && !LaunchPolicy.IsValidBrowser("curl")),
     ("launch mode is validated", () => LaunchPolicy.IsValidMode("App") && !LaunchPolicy.IsValidMode("Powershell")),
     ("default web opens with operating system handler", () =>

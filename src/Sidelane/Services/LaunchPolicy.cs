@@ -21,9 +21,11 @@ public static class LaunchPolicy
         {
             if (string.IsNullOrWhiteSpace(shortcut.AppPath) ||
                 !Path.IsPathFullyQualified(shortcut.AppPath) ||
-                !shortcut.AppPath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ||
+                !(shortcut.AppPath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ||
+                  shortcut.AppPath.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase)) ||
                 !File.Exists(shortcut.AppPath)) return null;
-            return new ProcessStartInfo(shortcut.AppPath) { UseShellExecute = false };
+            return new ProcessStartInfo(shortcut.AppPath)
+                { UseShellExecute = shortcut.AppPath.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase) };
         }
         if (!LinkPolicy.TryGetWebTarget(shortcut.Url, out var uri) || uri is null) return null;
         var browser = IsValidBrowser(shortcut.Browser) ? shortcut.Browser : "Default";

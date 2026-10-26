@@ -111,7 +111,7 @@ public partial class SettingsWindow : Window
 
     private void BrowseApp_Click(object sender, RoutedEventArgs e)
     {
-        var picker = new OpenFileDialog { Filter = "Windows applications|*.exe", CheckFileExists = true };
+        var picker = new OpenFileDialog { Filter = "Windows applications and shortcuts|*.exe;*.lnk", CheckFileExists = true };
         if (picker.ShowDialog() == true) AppPathInput.Text = picker.FileName;
     }
 
@@ -165,8 +165,9 @@ public partial class SettingsWindow : Window
         if (url.Length > 0 && !LinkPolicy.TryGetWebTarget(url, out _))
         { Validation.Text = "Use a valid http(s) URL."; return false; }
         if (mode == "App" && (appPath.Length == 0 || !System.IO.File.Exists(appPath) ||
-            !appPath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)))
-        { Validation.Text = "Choose an installed .exe for App mode."; return false; }
+            !(appPath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ||
+              appPath.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))))
+        { Validation.Text = "Choose an installed .exe or Windows shortcut (.lnk) for App mode."; return false; }
         if (mode == "Browser" && url.Length == 0)
         { Validation.Text = "Provide a website URL for Browser mode."; return false; }
         if (ShortcutList.SelectedItem is not ShortcutSettings && _shortcuts.Count >= 12)

@@ -72,7 +72,7 @@
           <Button Content="Sand" Tag="#E9C7A3|#28211F" Background="#554137" BorderBrush="#7F5C47" Margin="0,0,7,0" Click="Palette_Click"/>
           <Button Content="Iris" Tag="#C9BBF1|#211D2D" Background="#453C63" BorderBrush="#6E6094" Click="Palette_Click"/>
         </UniformGrid>
-        <Border CornerRadius="9" Background="#292D33" BorderBrush="#40464C" BorderThickness="1" Padding="12,9" Margin="0,0,0,12">
+        <Border x:Name="ThemePreview" CornerRadius="9" Background="#292D33" BorderBrush="#40464C" BorderThickness="1" Padding="12,9" Margin="0,0,0,12">
           <StackPanel Orientation="Horizontal">
             <Ellipse x:Name="AccentPreview" Fill="#B9D8BF" Width="19" Height="19" Margin="0,0,10,0"/>
             <TextBlock Text="Preview" Foreground="#ECEFED" FontSize="12" VerticalAlignment="Center"/>
@@ -177,10 +177,10 @@
           <CheckBox x:Name="BrowserAppWindowInput" Content="Open as a standalone web app (Chrome, Edge, Brave)" Margin="0,0,0,11"/>
         </StackPanel>
         <StackPanel x:Name="AppFields">
-          <TextBlock Text="Desktop app executable (.exe)" Style="{StaticResource FieldLabel}"/>
+          <TextBlock Text="Desktop application (.exe or .lnk shortcut)" Style="{StaticResource FieldLabel}"/>
           <DockPanel Margin="0,0,0,9">
             <Button DockPanel.Dock="Right" Content="Browse" Click="BrowseApp_Click" Margin="8,0,0,0"/>
-            <TextBox x:Name="AppPathInput" MaxLength="1024" ToolTip="Choose the installed app executable"/>
+            <TextBox x:Name="AppPathInput" MaxLength="1024" ToolTip="Choose an app or Windows shortcut, including a shortcut to a Store app"/>
           </DockPanel>
           <TextBlock Text="Use App mode to launch this program. Auto checks open windows first." TextWrapping="Wrap" FontSize="10.5" Foreground="{StaticResource Muted}" Margin="0,0,0,11"/>
         </StackPanel>
