@@ -1,7 +1,7 @@
 <Window x:Class="Sidelane.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Sidelane · Preferences" Width="530" Height="710" MinHeight="560" MinWidth="495"
+        Title="Sidelane · Preferences" Width="492" Height="660" MinHeight="510" MinWidth="460"
         WindowStartupLocation="CenterOwner" Background="#1B1E22" Foreground="#EAECEA" FontFamily="Segoe UI">
   <Window.Resources>
     <SolidColorBrush x:Key="Muted" Color="#A4A8AF"/>
@@ -51,7 +51,7 @@
     <Border DockPanel.Dock="Top" Background="#1B1E22" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" Padding="26,21,26,19">
       <StackPanel>
         <TextBlock Text="Preferences" FontWeight="SemiBold" FontSize="21" Foreground="#F0F1EF"/>
-        <TextBlock Text="Make Sidelane feel like part of your desktop." Foreground="{StaticResource Muted}" FontSize="12" Margin="0,5,0,0"/>
+        <TextBlock Text="Compact, personal, and out of your way." Foreground="{StaticResource Muted}" FontSize="12" Margin="0,5,0,0"/>
       </StackPanel>
     </Border>
     <Border DockPanel.Dock="Bottom" Background="#1B1E22" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="23,12">
@@ -63,24 +63,31 @@
       </Grid>
     </Border>
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-      <StackPanel Margin="26,24,26,20">
+      <StackPanel Margin="22,18,22,18">
         <TextBlock Text="Appearance" Style="{StaticResource SectionLabel}"/>
-        <TextBlock Text="Accent" Style="{StaticResource FieldLabel}"/>
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-          <Button Content="Sage" Tag="#B9D8BF" Background="#314A3D" BorderBrush="#557663" Margin="0,0,8,0" Click="Palette_Click"/>
-          <Button Content="Blue" Tag="#A9C8E8" Background="#2B3D51" BorderBrush="#455F7A" Margin="0,0,8,0" Click="Palette_Click"/>
-          <Button Content="Amber" Tag="#EACB9B" Background="#4D4032" BorderBrush="#695943" Margin="0,0,8,0" Click="Palette_Click"/>
-          <Button Content="Lilac" Tag="#CCB9E7" Background="#433A4F" BorderBrush="#615371" Click="Palette_Click"/>
-        </StackPanel>
+        <TextBlock Text="Color themes" Style="{StaticResource FieldLabel}"/>
+        <UniformGrid Columns="4" Margin="0,0,0,12">
+          <Button Content="Sage" Tag="#B9D8BF|#191C20" Background="#304A3D" BorderBrush="#52705E" Margin="0,0,7,0" Click="Palette_Click"/>
+          <Button Content="Slate" Tag="#9BC9E2|#17212D" Background="#283F51" BorderBrush="#557389" Margin="0,0,7,0" Click="Palette_Click"/>
+          <Button Content="Sand" Tag="#E9C7A3|#28211F" Background="#554137" BorderBrush="#7F5C47" Margin="0,0,7,0" Click="Palette_Click"/>
+          <Button Content="Iris" Tag="#C9BBF1|#211D2D" Background="#453C63" BorderBrush="#6E6094" Click="Palette_Click"/>
+        </UniformGrid>
+        <Border CornerRadius="9" Background="#292D33" BorderBrush="#40464C" BorderThickness="1" Padding="12,9" Margin="0,0,0,12">
+          <StackPanel Orientation="Horizontal">
+            <Ellipse x:Name="AccentPreview" Fill="#B9D8BF" Width="19" Height="19" Margin="0,0,10,0"/>
+            <TextBlock Text="Preview" Foreground="#ECEFED" FontSize="12" VerticalAlignment="Center"/>
+            <TextBlock Text="   •   choose a preset or any color" Foreground="{StaticResource Muted}" FontSize="10.5" VerticalAlignment="Center"/>
+          </StackPanel>
+        </Border>
         <Grid Margin="0,0,0,16">
           <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
           <StackPanel Margin="0,0,9,0">
             <TextBlock Text="Accent hex" Style="{StaticResource FieldLabel}"/>
-            <TextBox x:Name="AccentInput" MaxLength="7" ToolTip="Accent hex color, for example #B9D8BF"/>
+            <DockPanel><Button DockPanel.Dock="Right" Content="Pick" Margin="6,0,0,0" Padding="8,4" Click="PickAccent_Click"/><TextBox x:Name="AccentInput" MaxLength="7" ToolTip="Accent hex color" TextChanged="ColorInput_Changed"/></DockPanel>
           </StackPanel>
           <StackPanel Grid.Column="1" Margin="9,0,0,0">
             <TextBlock Text="Surface hex (dark)" Style="{StaticResource FieldLabel}"/>
-            <TextBox x:Name="BackgroundInput" MaxLength="7" ToolTip="Background hex color"/>
+            <DockPanel><Button DockPanel.Dock="Right" Content="Pick" Margin="6,0,0,0" Padding="8,4" Click="PickBackground_Click"/><TextBox x:Name="BackgroundInput" MaxLength="7" ToolTip="Background hex color" TextChanged="ColorInput_Changed"/></DockPanel>
           </StackPanel>
         </Grid>
         <TextBlock Text="Typeface" Style="{StaticResource FieldLabel}"/>
@@ -111,17 +118,17 @@
           <TextBlock Text="Collapsed rail width" Style="{StaticResource FieldLabel}"/>
           <TextBlock x:Name="RailWidthValue" Grid.Column="1" Foreground="{StaticResource Muted}"/>
         </Grid>
-        <Slider x:Name="RailWidthInput" Minimum="54" Maximum="76" TickFrequency="2" IsSnapToTickEnabled="True" ValueChanged="Size_Changed" Margin="0,0,0,12"/>
+        <Slider x:Name="RailWidthInput" Minimum="42" Maximum="76" TickFrequency="2" IsSnapToTickEnabled="True" ValueChanged="Size_Changed" Margin="0,0,0,12"/>
         <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
           <TextBlock Text="Expanded width" Style="{StaticResource FieldLabel}"/>
           <TextBlock x:Name="PanelWidthValue" Grid.Column="1" Foreground="{StaticResource Muted}"/>
         </Grid>
-        <Slider x:Name="PanelWidthInput" Minimum="340" Maximum="520" TickFrequency="10" IsSnapToTickEnabled="True" ValueChanged="Size_Changed" Margin="0,0,0,12"/>
+        <Slider x:Name="PanelWidthInput" Minimum="300" Maximum="520" TickFrequency="10" IsSnapToTickEnabled="True" ValueChanged="Size_Changed" Margin="0,0,0,12"/>
         <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
           <TextBlock Text="Panel height" Style="{StaticResource FieldLabel}"/>
           <TextBlock x:Name="PanelHeightValue" Grid.Column="1" Foreground="{StaticResource Muted}"/>
         </Grid>
-        <Slider x:Name="PanelHeightInput" Minimum="420" Maximum="900" TickFrequency="20" IsSnapToTickEnabled="True" ValueChanged="Size_Changed" Margin="0,0,0,8"/>
+        <Slider x:Name="PanelHeightInput" Minimum="360" Maximum="900" TickFrequency="20" IsSnapToTickEnabled="True" ValueChanged="Size_Changed" Margin="0,0,0,8"/>
         <TextBlock Text="Dimensions use Windows display-independent pixels; height fits the monitor." TextWrapping="Wrap" Foreground="{StaticResource Muted}" FontSize="10.5" Margin="0,0,0,21"/>
         <Rectangle Height="1" Fill="{StaticResource Line}" Margin="0,0,0,21"/>
         <TextBlock Text="Behavior" Style="{StaticResource SectionLabel}"/>
@@ -133,6 +140,8 @@
         <CheckBox x:Name="RespectFullscreenInput" Content="Stay behind fullscreen applications"/>
         <CheckBox x:Name="StartupAtLoginInput" Content="Open at Windows sign-in"/>
         <CheckBox x:Name="StartCollapsedInput" Content="Start as a narrow strip"/>
+        <CheckBox x:Name="ShowTaskbarInput" Content="Show Sidelane on the taskbar"/>
+        <CheckBox x:Name="AnimationsInput" Content="Enable subtle motion animations"/>
         <CheckBox x:Name="LockPositionInput" Content="Lock position" Margin="0,0,0,18"/>
         <Rectangle Height="1" Fill="{StaticResource Line}" Margin="0,0,0,21"/>
         <TextBlock Text="Shortcuts" Style="{StaticResource SectionLabel}" Margin="0,0,0,7"/>
@@ -151,8 +160,30 @@
         </Grid>
         <TextBlock Text="Match window title or process" Style="{StaticResource FieldLabel}"/>
         <TextBox x:Name="MatchInput" MaxLength="100" Margin="0,0,0,11" ToolTip="Separate alternatives with |"/>
-        <TextBlock Text="Fallback website" Style="{StaticResource FieldLabel}"/>
-        <TextBox x:Name="UrlInput" MaxLength="500" ToolTip="HTTP(S) website opened when no matching window exists"/>
+        <TextBlock Text="Launch behavior" Style="{StaticResource FieldLabel}"/>
+        <ComboBox x:Name="LaunchModeCombo" Margin="0,0,0,10" SelectionChanged="LaunchMode_Changed">
+          <ComboBoxItem Content="Auto"/>
+          <ComboBoxItem Content="Browser"/>
+          <ComboBoxItem Content="App"/>
+        </ComboBox>
+        <TextBlock Text="Website URL" Style="{StaticResource FieldLabel}"/>
+        <TextBox x:Name="UrlInput" MaxLength="500" Margin="0,0,0,10" ToolTip="HTTPS or HTTP destination"/>
+        <StackPanel x:Name="BrowserFields">
+          <TextBlock Text="Open website with" Style="{StaticResource FieldLabel}"/>
+          <ComboBox x:Name="BrowserCombo" Margin="0,0,0,9">
+            <ComboBoxItem Content="Default"/><ComboBoxItem Content="Chrome"/>
+            <ComboBoxItem Content="Edge"/><ComboBoxItem Content="Firefox"/><ComboBoxItem Content="Brave"/>
+          </ComboBox>
+          <CheckBox x:Name="BrowserAppWindowInput" Content="Open as a standalone web app (Chrome, Edge, Brave)" Margin="0,0,0,11"/>
+        </StackPanel>
+        <StackPanel x:Name="AppFields">
+          <TextBlock Text="Desktop app executable (.exe)" Style="{StaticResource FieldLabel}"/>
+          <DockPanel Margin="0,0,0,9">
+            <Button DockPanel.Dock="Right" Content="Browse" Click="BrowseApp_Click" Margin="8,0,0,0"/>
+            <TextBox x:Name="AppPathInput" MaxLength="1024" ToolTip="Choose the installed app executable"/>
+          </DockPanel>
+          <TextBlock Text="Use App mode to launch this program. Auto checks open windows first." TextWrapping="Wrap" FontSize="10.5" Foreground="{StaticResource Muted}" Margin="0,0,0,11"/>
+        </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,13,0,0">
           <Button Content="New" Click="NewShortcut_Click" Margin="0,0,8,0"/>
           <Button Content="Remove" Click="RemoveShortcut_Click" Margin="0,0,8,0"/>
