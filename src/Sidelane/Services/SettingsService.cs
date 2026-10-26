@@ -98,7 +98,7 @@ public sealed class SettingsService
                 Browser = LaunchPolicy.IsValidBrowser(s.Browser) ? s.Browser : "Default",
                 BrowserAppWindow = s.BrowserAppWindow,
                 AppPath = (s.AppPath ?? "").Length <= 1024 && System.IO.Path.IsPathFullyQualified(s.AppPath ?? "") &&
-                    (s.AppPath ?? "").EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? s.AppPath : ""
+                    (s.AppPath ?? "").EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? (s.AppPath ?? "") : ""
             })
             .Where(s => names.Add(s.Name))
             .Take(12).ToList();
