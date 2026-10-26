@@ -17,6 +17,8 @@ public partial class App : System.Windows.Application
     private bool _settingsOpen;
     private readonly CancellationTokenSource _updateStop = new();
     private Uri? _availableUpdate;
+    private SidelaneRelease? _latestRelease;
+    private bool _updating;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -48,7 +50,7 @@ public partial class App : System.Windows.Application
             Visible = true, ContextMenuStrip = menu
         };
         _tray.DoubleClick += (_, _) => Dispatcher.Invoke(() => _overlay.ToggleVisibility());
-        _tray.BalloonTipClicked += (_, _) => { if (_availableUpdate is { } url) OpenUpdatePage(url); };
+        _tray.BalloonTipClicked += (_, _) => Dispatcher.BeginInvoke(async () => await OfferUpdateAsync());
         _ = UpdateLoopAsync();
     }
 
@@ -80,6 +82,30 @@ public partial class App : System.Windows.Application
         catch (OperationCanceledException) { }
     }
 
+    private async Task OfferUpdateAsync()
+    {
+        var release = _latestRelease;
+        if (release is null || _updating) return;
+        if (release.Installer is null || release.Checksum is null)
+        { OpenUpdatePage(release.Page); return; }
+        if (MessageBox.Show($"Download and verify Sidelane {release.Version} installer from the official GitHub release? The setup runs only with your approval.",
+            "Sidelane update", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+        _updating = true;
+        try
+        {
+            var path = await VerifiedInstallerService.DownloadAsync(release, _updateStop.Token);
+            Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+            ExitApp(); // release installation files before setup replaces them
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or HttpRequestException or TaskCanceledException or System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            MessageBox.Show("Update could not be verified or started. Use the official release page instead.",
+                "Sidelane update", MessageBoxButton.OK, MessageBoxImage.Warning);
+            OpenUpdatePage(release.Page);
+        }
+        finally { _updating = false; }
+    }
+
     private async Task CheckForUpdatesAsync(bool interactive)
     {
         try
@@ -88,6 +114,8 @@ public partial class App : System.Windows.Application
             var info = await UpdateService.GetNewReleaseAsync(current, _updateStop.Token);
             if (info is not null)
             {
+                _latestRelease = info;
+                if (interactive) { await OfferUpdateAsync(); return; }
                 if (info.Page != _availableUpdate)
                 {
                     _availableUpdate = info.Page;
@@ -95,7 +123,7 @@ public partial class App : System.Windows.Application
                         $"Version {info.Version} is ready. Click to view the official release.",
                         System.Windows.Forms.ToolTipIcon.Info);
                 }
-                else if (interactive) OpenUpdatePage(info.Page);
+
             }
             else if (interactive)
                 System.Windows.MessageBox.Show("You're on the latest stable release.",
