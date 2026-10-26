@@ -141,6 +141,7 @@ public partial class OverlayWindow : Window
     {
         var s = _settings.Current;
         FontFamily = new FontFamily(s.Font);
+        SearchBoxRow.Visibility = s.Shortcuts.Count > 6 ? Visibility.Visible : Visibility.Collapsed;
         ShowInTaskbar = s.ShowTaskbarButton;
         // Opacity applies to surfaces, not labels: keep text and icons legible.
         Surface.Opacity = 1;
@@ -354,9 +355,15 @@ public partial class OverlayWindow : Window
             if (target is not null || observed.Length > 0) visible++;
             var generating = observed.StartsWith("Generating", StringComparison.Ordinal);
             var isFocused = target is not null && WindowService.IsFocused(target.Handle);
+            var availableDestination = item.LaunchMode switch
+            {
+                "App" => "Launch desktop app",
+                "Browser" => "Open in " + item.Browser,
+                _ => !string.IsNullOrEmpty(item.AppPath) ? "Launch desktop app" :
+                     LinkPolicy.TryGetWebTarget(item.Url, out _) ? "Open website" : "Not open"
+            };
             var state = manual ?? (observed.Length > 0 ? observed : isFocused ? "In focus" :
-                target is not null ? "Open" :
-                LinkPolicy.TryGetWebTarget(item.Url, out _) ? "Open website" : "Not open");
+                target is not null ? "Open" : availableDestination);
             if (activity.Note.Length > 0)
                 state = generating ? observed + " · " + activity.Note : activity.Note;
             var dotColor = manual is not null || observed.Length > 0 || activity.Note.Length > 0 || isFocused ? AccentBrush :
@@ -366,7 +373,7 @@ public partial class OverlayWindow : Window
             var btn = new Button
             {
                 Style = (Style)FindResource("AppRowButton"),
-                Height = 48, Margin = new Thickness(0,0,0,2),
+                Height = 39, Margin = new Thickness(0,0,0,1),
                 ToolTip = BuildShortcutTooltip(item.Name, state, target?.Title, manual)
             };
             var grid = new Grid();

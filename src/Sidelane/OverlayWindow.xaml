@@ -76,7 +76,7 @@
               <TextBlock Text="Apps" Foreground="#E7E7E5" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
               <TextBlock x:Name="AppsCount" Grid.Column="1" Text="0 open" Foreground="#848991" FontSize="11" VerticalAlignment="Center"/>
             </Grid>
-            <Grid Margin="0,0,2,9">
+            <Grid x:Name="SearchBoxRow" Margin="0,0,2,9">
               <TextBox x:Name="SearchApps" Style="{StaticResource OverlayInput}" Height="33"
                        ToolTip="Find a configured app" MaxLength="60" TextChanged="SearchApps_TextChanged"
                        AutomationProperties.Name="Filter apps"/>
@@ -84,7 +84,7 @@
                          Margin="11,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
             </Grid>
             <ItemsControl x:Name="AppRows"/>
-            <Rectangle Height="1" Fill="#37393F" Margin="3,15,4,13"/>
+            <Rectangle Height="1" Fill="#37393F" Margin="3,10,4,9"/>
             <Grid Margin="3,0,4,9">
               <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
               <TextBlock Text="Listening" FontSize="13" FontWeight="SemiBold" Foreground="#E7E7E5"/>
@@ -107,8 +107,8 @@
                 </StackPanel>
               </Grid>
             </Border>
-            <Rectangle Height="1" Fill="#37393F" Margin="3,18,4,13"/>
-            <Grid Margin="3,0,4,11">
+            <Rectangle Height="1" Fill="#37393F" Margin="3,11,4,8"/>
+            <Grid Margin="3,0,4,7">
               <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
               <TextBlock x:Name="ScratchpadTitle" Text="Scratchpad" FontSize="13" FontWeight="SemiBold" Foreground="#E7E7E5"/>
               <TextBlock Text="Temporary" Grid.Column="1" FontSize="10" Foreground="#828791" VerticalAlignment="Center" ToolTip="Tasks clear when Sidelane exits"/>
