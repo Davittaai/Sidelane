@@ -17,15 +17,19 @@ public static class LaunchPolicy
     public static ProcessStartInfo? Create(ShortcutSettings shortcut, Func<string, string?> browserResolver)
     {
         var mode = IsValidMode(shortcut.LaunchMode) ? shortcut.LaunchMode : "Auto";
-        if (mode == "App" || (mode == "Auto" && !string.IsNullOrWhiteSpace(shortcut.AppPath)))
+        // App mode is strict: never surprise the user by opening a browser.
+        // Auto mode may fall back to the website if the local app moved or was uninstalled.
+        if (mode is "App" or "Auto")
         {
-            if (string.IsNullOrWhiteSpace(shortcut.AppPath) ||
-                !Path.IsPathFullyQualified(shortcut.AppPath) ||
-                !(shortcut.AppPath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ||
-                  shortcut.AppPath.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase)) ||
-                !File.Exists(shortcut.AppPath)) return null;
-            return new ProcessStartInfo(shortcut.AppPath)
-                { UseShellExecute = shortcut.AppPath.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase) };
+            var path = shortcut.AppPath ?? "";
+            var valid = Path.IsPathFullyQualified(path) &&
+                (path.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ||
+                 path.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase)) &&
+                File.Exists(path);
+            if (valid)
+                return new ProcessStartInfo(path)
+                    { UseShellExecute = path.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase) };
+            if (mode == "App") return null;
         }
         if (!LinkPolicy.TryGetWebTarget(shortcut.Url, out var uri) || uri is null) return null;
         var browser = IsValidBrowser(shortcut.Browser) ? shortcut.Browser : "Default";

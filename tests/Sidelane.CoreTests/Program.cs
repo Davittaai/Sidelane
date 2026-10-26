@@ -4,6 +4,23 @@ using Sidelane.Services;
 
 var cases = new List<(string Name, Func<bool> Run)>
 {
+    ("theme rail follows selected custom dark surface", () =>
+        ThemePalettePolicy.Rail("#17212D") != ThemePalettePolicy.Rail("#28211F") &&
+        ThemeContrastPolicy.SupportsDarkUi(ThemePalettePolicy.Rail("#17212D"))),
+    ("palette blend limits amount safely", () =>
+        ThemePalettePolicy.Blend("#000000", "#FFFFFF", 1) == "#FFFFFF" &&
+        ThemePalettePolicy.Blend("#102030", "#FFFFFF", -1) == "#102030"),
+    ("theme divider derives from user background", () =>
+        ThemePalettePolicy.Divider("#17212D") != ThemePalettePolicy.Divider("#28211F")),
+    ("auto launch falls back to configured website when app is missing", () =>
+    {
+        var p = LaunchPolicy.Create(new ShortcutSettings { LaunchMode = "Auto",
+            AppPath = @"C:\Apps\missing-sidelane.exe", Url = "https://chatgpt.com/" }, _ => null);
+        return p is { UseShellExecute: true } && p.FileName == "https://chatgpt.com/";
+    }),
+    ("explicit app mode never falls back if app moved", () =>
+        LaunchPolicy.Create(new ShortcutSettings { LaunchMode = "App",
+            AppPath = @"C:\Apps\missing-sidelane.exe", Url = "https://chatgpt.com/" }, _ => null) is null),
     ("native app mode accepts only existing files", () =>
         LaunchPolicy.Create(new ShortcutSettings { LaunchMode="App", AppPath=@"C:\does-not-exist-sidelane.exe" },
             _ => null) is null),

@@ -147,8 +147,13 @@ public partial class OverlayWindow : Window
         Surface.Opacity = 1;
         Surface.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(s.Background))
         { Opacity = s.Opacity };
-        RailArea.Background = new SolidColorBrush(Color.FromRgb(32, 34, 38))
-        { Opacity = s.Opacity };
+        RailArea.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(
+            ThemePalettePolicy.Rail(s.Background))) { Opacity = s.Opacity };
+        var divider = new SolidColorBrush((Color)ColorConverter.ConvertFromString(
+            ThemePalettePolicy.Divider(s.Background)));
+        RailArea.BorderBrush = divider;
+        Surface.BorderBrush = divider;
+        LoadingBar.Foreground = AccentBrush;
         var wallpaper = BackgroundImagePolicy.TryCreateBrush(s.BackgroundImage);
         // Optional wallpaper should never compete with content readability.
         if (wallpaper is not null) wallpaper.Opacity = 0.13;
