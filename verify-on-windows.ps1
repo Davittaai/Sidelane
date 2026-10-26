@@ -9,4 +9,9 @@ if ($LASTEXITCODE -ne 0) { throw 'WPF build failed.' }
 & dotnet publish src/Sidelane/Sidelane.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o release
 if ($LASTEXITCODE -ne 0) { throw 'Portable build failed.' }
 if (-not (Test-Path 'release/Sidelane.exe')) { throw 'Expected Windows executable not found.' }
+& dotnet publish src/Sidelane.NativeHost/Sidelane.NativeHost.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o release-nativehost
+if ($LASTEXITCODE -ne 0) { throw 'Native messaging host publish failed.' }
+Copy-Item release-nativehost/Sidelane.NativeHost.exe release/Sidelane.NativeHost.exe
+Copy-Item companion release/companion -Recurse -Force
+if (-not (Test-Path 'release/companion/chrome/manifest.json')) { throw 'Missing optional Chrome companion.' }
 Write-Host 'Checks and publish succeeded. Complete docs/WINDOWS-QA.md manual smoke tests before public release.'
