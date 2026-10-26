@@ -2,7 +2,7 @@ name: Windows build
 
 on:
   push:
-    branches: [main, release/v1.0.0, 'release/v1.1.0-beta.*', 'release/v1.2.0-beta.*', 'release/v1.3.0-beta.*']
+    branches: [main, release/v1.0.0, 'release/v1.1.0-beta.*', 'release/v1.2.0-beta.*', 'release/v1.3.0-beta.*', 'release/v2.0.0-beta.*']
     tags: ['v1.*']
   pull_request:
   workflow_dispatch:

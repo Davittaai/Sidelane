@@ -5,7 +5,7 @@ on:
   workflow_run:
     workflows: ["Windows build"]
     types: [completed]
-    branches: ["release/v1.1.0-beta.*", "release/v1.2.0-beta.*", "release/v1.3.0-beta.*"]
+    branches: ["release/v1.1.0-beta.*", "release/v1.2.0-beta.*", "release/v1.3.0-beta.*", "release/v2.0.0-beta.*"]
 
 permissions:
   contents: write
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   release-preview:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository && (startsWith(github.event.workflow_run.head_branch, 'release/v1.1.0-beta.') || startsWith(github.event.workflow_run.head_branch, 'release/v1.2.0-beta.') || startsWith(github.event.workflow_run.head_branch, 'release/v1.3.0-beta.')) }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository && (startsWith(github.event.workflow_run.head_branch, 'release/v1.1.0-beta.') || startsWith(github.event.workflow_run.head_branch, 'release/v1.2.0-beta.') || startsWith(github.event.workflow_run.head_branch, 'release/v1.3.0-beta.') || startsWith(github.event.workflow_run.head_branch, 'release/v2.0.0-beta.')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -25,7 +25,7 @@ jobs:
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
         run: |
-          [[ "$HEAD_BRANCH" =~ ^release/v1\.(1|2|3)\.0-beta\.[0-9]+$ ]] || exit 1
+          [[ "$HEAD_BRANCH" =~ ^release/v(1\.(1|2|3)|2\.0)\.0-beta\.[0-9]+$ ]] || exit 1
           current=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$HEAD_BRANCH" --jq .object.sha)
           if [ "$current" = "$HEAD_SHA" ]; then
             echo 'yes=true' >> "$GITHUB_OUTPUT"

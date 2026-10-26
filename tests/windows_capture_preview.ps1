@@ -13,7 +13,7 @@ public static class SidelanePointer {
 '@
 
 $exe = (Resolve-Path -LiteralPath $ExePath).Path
-$proc = Start-Process -FilePath $exe -WorkingDirectory (Split-Path $exe) -PassThru
+$proc = Start-Process -FilePath $exe -WorkingDirectory (Split-Path $exe) -ArgumentList "--smoke-test" -PassThru
 try {
     Start-Sleep -Seconds 4
     $proc.Refresh()

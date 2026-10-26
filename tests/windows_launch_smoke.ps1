@@ -32,7 +32,7 @@ public static class SidelaneNativeProbe {
 '@
 
 Write-Host "Launching $exe for native startup and top-level window verification"
-$process = Start-Process -FilePath $exe -WorkingDirectory $workDir -PassThru
+$process = Start-Process -FilePath $exe -WorkingDirectory $workDir -ArgumentList "--smoke-test" -PassThru
 try {
     Start-Sleep -Seconds 6
     $process.Refresh()
