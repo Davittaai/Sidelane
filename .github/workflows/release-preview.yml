@@ -5,7 +5,7 @@ on:
   workflow_run:
     workflows: ["Windows build"]
     types: [completed]
-    branches: ["release/v1.1.0-beta.*"]
+    branches: ["release/v1.1.0-beta.*", "release/v1.2.0-beta.*"]
 
 permissions:
   contents: write
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   release-preview:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository && startsWith(github.event.workflow_run.head_branch, 'release/v1.1.0-beta.') }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository && (startsWith(github.event.workflow_run.head_branch, 'release/v1.1.0-beta.') || startsWith(github.event.workflow_run.head_branch, 'release/v1.2.0-beta.')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -25,7 +25,7 @@ jobs:
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
         run: |
-          [[ "$HEAD_BRANCH" =~ ^release/v1\.1\.0-beta\.[0-9]+$ ]] || exit 1
+          [[ "$HEAD_BRANCH" =~ ^release/v1\.(1|2)\.0-beta\.[0-9]+$ ]] || exit 1
           current=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$HEAD_BRANCH" --jq .object.sha)
           if [ "$current" = "$HEAD_SHA" ]; then
             echo 'yes=true' >> "$GITHUB_OUTPUT"
@@ -44,6 +44,7 @@ jobs:
         run: |
           cd dist
           sha256sum --check Sidelane-win-x64.sha256
+          sha256sum --check SidelaneSetup.sha256
           unzip -l Sidelane-win-x64.zip | grep -E 'Sidelane.exe|LICENSE|README-START.txt'
       - name: Publish preview assets
         if: steps.selected.outputs.yes == 'true'
@@ -54,9 +55,9 @@ jobs:
         run: |
           TAG="${HEAD_BRANCH#release/}"
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release upload "$TAG" dist/Sidelane-win-x64.zip dist/Sidelane-win-x64.sha256 --clobber --repo "$GITHUB_REPOSITORY"
+            gh release upload "$TAG" dist/Sidelane-win-x64.zip dist/Sidelane-win-x64.sha256 dist/SidelaneSetup.exe dist/SidelaneSetup.sha256 --clobber --repo "$GITHUB_REPOSITORY"
           else
-            gh release create "$TAG" dist/Sidelane-win-x64.zip dist/Sidelane-win-x64.sha256 \
+            gh release create "$TAG" dist/Sidelane-win-x64.zip dist/Sidelane-win-x64.sha256 dist/SidelaneSetup.exe dist/SidelaneSetup.sha256 \
               --prerelease --target "$HEAD_SHA" --title "Sidelane $TAG" \
-              --notes-file docs/RELEASE-NOTES-beta.md --repo "$GITHUB_REPOSITORY"
+              --notes-file docs/RELEASE-NOTES-v1.2-beta.md --repo "$GITHUB_REPOSITORY"
           fi
