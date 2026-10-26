@@ -1,4 +1,9 @@
-Sidelane v1.0 - Windows x64 portable desktop sidebar
+Sidelane v1.2 beta - Windows x64 desktop sidebar
+
+Installer: Run SidelaneSetup.exe to add Start menu and Uninstall support,
+or unzip the portable build and run Sidelane.exe.
+The app checks official stable GitHub releases daily, offers a notification,
+and never installs a replacement without your approval.
 
 1. Extract the entire ZIP to a folder you control (for example, C:\Tools\Sidelane).
 2. Run Sidelane.exe. It is self-contained: no separate .NET runtime installation is needed.
