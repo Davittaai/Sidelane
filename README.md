@@ -1,78 +1,54 @@
 # Sidelane
 
-A lightweight, customizable Windows sidebar for people switching between AI tools, code editors, music, and short tasks. Sidelane stays narrow until you hover or press **Ctrl+Alt+Space**. The expanded panel gives you your current tools without another dashboard to manage.
+A compact, customizable **Windows workspace rail** for your AI tools, desktop apps, browser profiles, media and temporary tasks. Native .NET 10 WPF, no Electron, no account, no telemetry.
 
-![Actual Sidelane WPF sidebar captured on a Windows runner](docs/native-v1.1.png)
+<p><img src="docs/sidelane-app-icon.png" alt="Sidelane app icon" width="82" /></p>
 
-**Stable release: [Sidelane v1.0.0](https://github.com/Davittaai/Sidelane/releases/tag/v1.0.0), October 20, 2026.** The Windows release passed 38 core checks, warning-free WPF compilation, a real Windows process-startup smoke test, and checksum verification. The image above is an **actual WPF application screenshot** from an isolated Windows CI desktop; it does not replace hands-on laptop QA. Real-desktop interaction and media testing remain to be documented in [Windows QA](docs/WINDOWS-QA.md).
+**[Get v1.3 Beta 1 installer](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.1/SidelaneSetup.exe)** · **[Portable ZIP](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.1/Sidelane-win-x64.zip)** · [Release notes](docs/RELEASE-NOTES-v1.3-beta.md) · [Installer SHA256](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.1/SidelaneSetup.sha256)
 
-## New in the v1.2 beta
+**Stable version:** [v1.0.0](https://github.com/Davittaai/Sidelane/releases/tag/v1.0.0). **Latest beta:** [v1.3.0-beta.1](https://github.com/Davittaai/Sidelane/releases/tag/v1.3.0-beta.1). The latest beta is a real downloadable Windows build, not a browser mockup. It still requires real-device QA before stable promotion.
 
-The **[v1.2.0-beta.1 release](https://github.com/Davittaai/Sidelane/releases/tag/v1.2.0-beta.1)** adds three configurable panel dimensions in Preferences, a conventional per-user Windows installer with Start Menu shortcut and uninstall support, and daily official-release checks. When a newer stable installer is available, Sidelane asks permission, downloads it, verifies the SHA256 published with the release, and only then starts setup. The portable ZIP remains supported; there is no silent updater.
+## Native Windows screenshots
 
-An **optional experimental** Chrome companion is also included in the ZIP and installer. It observes only Stop-button attributes on ChatGPT, Claude and Grok pages and sends short generating/recently-stopped/unknown status signals through Chrome's native-messaging API and a same-user Windows named pipe. It does not read prompts or responses. Site compatibility needs live-browser testing, so these signals are explicitly labeled as browser observations, not guaranteed AI progress. See [companion setup](companion/README.md) and [v1.2 beta notes](docs/RELEASE-NOTES-v1.2-beta.md).
+<table><tr><td><img src="docs/native-sidebar-v13.png" alt="Compact Sidelane WPF sidebar" width="318"></td><td><img src="docs/native-preferences-v13.png" alt="Sidelane preferences with themes and navigation" width="479"></td></tr></table>
 
-**v1.0.0 remains the stable public download** until the new features pass full real-device acceptance.
+*Real WPF screenshots captured on a hosted Windows runner, not concept renders. Live AI services, browser selection and mixed-DPI user environments need separate device testing.*
 
-**[Download the new Windows installer](https://github.com/Davittaai/Sidelane/releases/download/v1.2.0-beta.1/SidelaneSetup.exe)** · [Portable ZIP](https://github.com/Davittaai/Sidelane/releases/download/v1.2.0-beta.1/Sidelane-win-x64.zip) · [Installer SHA256](https://github.com/Davittaai/Sidelane/releases/download/v1.2.0-beta.1/SidelaneSetup.sha256).
+## Features
 
-The v1.2 beta passed 56 automated core checks, a Windows GUI startup smoke test, native bridge protocol test, and installer install/uninstall verification. Provider-specific Chrome detection and real mixed-DPI desktop testing remain open.
+- **Your size:** the collapsed rail starts at 46 display-independent pixels; the expanded view is 320 wide and 560 high. Change each dimension in Preferences, and position it left, right or freely.
+- **Your colors:** coordinated Sage, Slate, Sand and Iris palettes, custom Windows color pickers, dark-surface contrast protection, opacity, local wallpaper and font choices.
+- **Your apps or browser:** select **Auto** (focus a matching window first), **App** (launch the chosen `.exe` or Windows `.lnk` shortcut, including Store-app shortcuts), or **Browser** (default, Chrome, Edge, Firefox or Brave). Chromium browsers can open a standalone web-app window. The App option will not silently open the website.
+- **Visibility and status:** an open native app can be detected from its process. The optional Chrome companion can observe open, generating and recently stopped states for ChatGPT, Claude and Grok, when supported by their current UI. Status is based on site controls; **Sidelane cannot automatically read or name your tasks**.
+- **Your task labels:** use the pencil button beside an app to attach a manual, temporary description of what you're working on. Manual labels and disposable scratchpad tasks are held in memory only and clear at exit.
+- **Music:** local Windows media-session title/artist and available playback controls, including Spotify when its Windows session supports them.
+- **Motion:** subtle entry animation, short loading indicator, and small animated bars when an opted-in browser reports generation. Disable animations in Preferences.
+- **Windows integration:** taskbar icon while open (configurable), system-tray controls, Ctrl+Alt+Space visibility shortcut, optional login launch, standard installer and uninstall entry, and consent-based checks for verified GitHub updates.
 
-## What you get
+## Install
 
-- **Apps:** custom ChatGPT, Claude, Grok, Codex, VS Code or arbitrary web shortcuts, with Windows window switching when detectable.
-- **Audio:** artist/track text and playback controls through Windows media-session integration when supported by the player.
-- **Tasks:** a small disposable checklist, wiped when you exit. Task contents are never written to disk.
-- **Status notes:** manually choose working, waiting, ready, or add a **session-only activity note** from the app's right-click menu (v1.1 preview). The note appears in the compact-rail tooltip and clears on exit. Sidelane does **not** detect AI generation states automatically.
-- **Appearance:** dark surfaces, font choice, accent, opacity, background image, left/right/free positioning and optional autostart.
-- **Privacy:** local JSON settings only. No accounts, telemetry, online AI integrations, conversation monitoring, or tracking.
+1. Download [SidelaneSetup.exe](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.1/SidelaneSetup.exe), or use the [portable ZIP](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.1/Sidelane-win-x64.zip) without installation.
+2. The self-contained Windows x64 app does **not** require installing the .NET SDK. The binary is **unsigned**, so SmartScreen may warn. Verify its [SHA256](https://github.com/Davittaai/Sidelane/releases/download/v1.3.0-beta.1/SidelaneSetup.sha256) and use files only from the official repository.
+3. Open **Preferences → Apps**. Choose the shortcut, launch mode, selected browser or installed application file, and optionally the activity provider. Choose **Appearance** and **Layout** to personalize the rail.
+4. Press **Ctrl+Alt+Space** to show the overlay; hover to expand; use the pencil by an AI app to describe a task without saving its content.
 
-**Preview for testers:** [Sidelane v1.1.0-beta.2](https://github.com/Davittaai/Sidelane/releases/tag/v1.1.0-beta.2) includes temporary per-app notes and launch improvements. It is not a stable release until real-device QA is documented.
+**Optional Chrome companion:** not installed or activated automatically. [Instructions and privacy boundaries](companion/README.md). The native app works independently without this extension. Other browsers may be chosen for launching, but automatic AI activity observation is currently an experimental **Chrome-only** integration.
 
-## Download and run on Windows
-
-**[Download Sidelane v1.0.0 (Windows x64 ZIP)](https://github.com/Davittaai/Sidelane/releases/download/v1.0.0/Sidelane-win-x64.zip)** · [SHA256 checksum](https://github.com/Davittaai/Sidelane/releases/download/v1.0.0/Sidelane-win-x64.sha256) · [Release notes](https://github.com/Davittaai/Sidelane/releases/tag/v1.0.0)
-
-1. Download the Windows ZIP and extract it to a regular folder, for example `C:\Tools\Sidelane`.
-2. Double-click **`Sidelane.exe`**. The Windows x64 executable is self-contained, so users **do not** need the .NET SDK.
-3. Hover the 54-pixel rail to expand; right-click for options; press **Ctrl+Alt+Space** to show the sidebar. Open **Preferences** to customize shortcuts and the appearance.
-4. Use the system-tray icon or the sidebar context menu to exit. Temporary tasks and manual AI status labels clear when the app exits.
-
-The executable is **unsigned**. Windows SmartScreen may warn about an unfamiliar publisher. Verify the download checksum and only run files you trust. Read `README-START.txt` in the archive.
-
-**Building from source instead:** On Windows, install the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0), then double-click `Build-Sidelane.cmd` or run:
+## Building and verification
 
 ```powershell
 dotnet run --project tests/Sidelane.CoreTests/Sidelane.CoreTests.csproj -c Release
 dotnet publish src/Sidelane/Sidelane.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o release
 ```
 
-## Repository and verification
+Or run `Build-Sidelane.cmd` on Windows with the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0).
 
-The public source is at **[Davittaai/Sidelane](https://github.com/Davittaai/Sidelane)**, with an MIT license, source tests, Windows CI, and a permanent [v1.0.0 GitHub Release](https://github.com/Davittaai/Sidelane/releases/tag/v1.0.0). CI passed 38 core tests, compiled the WPF application with warnings treated as errors, launched the executable successfully on a Windows runner, and produced checksum-verified release assets.
+The v1.3 beta engineering suite passed **73/73 core tests**, warning-as-error WPF compilation, native process launch, local native-messaging protocol checks, and installer install/uninstall checks: [Windows CI evidence](https://github.com/Davittaai/Sidelane/actions/runs/40297630824). Those checks do not validate real live Chrome service markup, hotkey conflicts, mixed monitor/DPI setups or the user's Spotify sessions. Track outstanding acceptance in [Windows QA](docs/WINDOWS-QA.md), [UX review](docs/UX-REVIEW-v1.3.md), and [Issues](https://github.com/Davittaai/Sidelane/issues).
 
-This automated startup check is **not a substitute** for hands-on GUI testing. Windows DPI and multi-monitor positioning, media sessions, and fullscreen coexistence still need real-device QA. See [Windows checklist](docs/WINDOWS-QA.md) and [milestones](docs/MILESTONES.md).
+## Architecture, privacy and credits
 
-## Architecture and features
+Local preferences are stored at `%APPDATA%\Sidelane\settings.json`; tasks and manual labels are session-only. The optional companion sends short provider/state pairs over Chrome native messaging and a current-user named pipe, not transcripts, prompts or replies. The in-app stable update checker uses official GitHub releases and verifies SHA256 before opening a user-approved installer. See [SECURITY.md](SECURITY.md).
 
-| Feature | Mechanism |
-|---|---|
-| Sidebar | Frameless WPF topmost window, hover expansion and drag handle |
-| Windows detection | Win32 EnumWindows/process matching, adapted from Quick Apps Overlay (MIT) |
-| Media | `Windows.Media.Control` system sessions, no Spotify API keys |
-| Temporary scratchpad | WPF in-memory controls, deliberately not persisted |
-| Preferences | Local `%APPDATA%/Sidelane/settings.json` with atomic replacement |
-| Compatibility | .NET 10 LTS, Windows 11 recommended; Windows 10 behavior requires manual compatibility testing, x64 |
-| Open source | MIT; third-party attribution in `THIRD_PARTY_NOTICES.md` |
+License: [MIT](LICENSE). Portions of the Win32 window management were adapted from [Quick Apps Overlay](https://github.com/vhvb1989/quick-apps-overlay) under MIT (see [third-party notices](THIRD_PARTY_NOTICES.md)). Design and launch references included [WPF UI](https://github.com/lepoco/wpfui), [PixiEditor ColorPicker](https://github.com/PixiEditor/ColorPicker), and [BrowserPicker](https://github.com/mortenn/BrowserPicker); no heavy UI framework was vendored.
 
-Click a pinned app to focus a matching window or open its configured website. Right-click an app row to add or clear a **manual** activity note. App focus indicators read Windows foreground handles, not browser conversation data. The app yields to fullscreen applications by default, and starting with Windows is opt-in.
-
-## Development and limitations
-
-The source is intentionally free of external UI packages. It uses WPF and OS services rather than an Electron/browser runtime. Windows-targeted compilation and system integration require a Windows runner; this workspace can only check static markup and the separate HTML concept preview. The GitHub Actions workflow builds a self-contained portable x64 artifact and checksum.
-
-Refer to [v1 release status](docs/V1-RELEASE-STATUS.md), [Windows QA](docs/WINDOWS-QA.md), [design rationale](docs/DESIGN.md), [security](SECURITY.md), and [contributing](CONTRIBUTING.md). Found a bug? Include Windows version, reproduction steps, and logs with private data removed.
-
-## Credits
-
-Built as a free and open-source portfolio project by Davit Naskidashvili. Inspired by lightweight desktop overlays, including [Quick Apps Overlay](https://github.com/vhvb1989/quick-apps-overlay). Portions of Win32 window management adapted under its MIT license. See [third-party notices](THIRD_PARTY_NOTICES.md).
+Built as a free, open-source portfolio project by Davit Naskidashvili.
