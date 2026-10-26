@@ -112,7 +112,10 @@ public partial class App : System.Windows.Application
         try
         {
             var current = Assembly.GetExecutingAssembly().GetName().Version ?? new Version(1, 0);
-            var info = await UpdateService.GetNewReleaseAsync(current, _updateStop.Token);
+            var infoVersion = Assembly.GetExecutingAssembly()
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+            var isBeta = infoVersion?.Contains('-') == true;
+            var info = await UpdateService.GetNewReleaseAsync(current, isBeta, _updateStop.Token);
             if (info is not null)
             {
                 _latestRelease = info;
